@@ -1,0 +1,49 @@
+{
+  "name": "@axiom-math/engine",
+  "version": "0.1.0",
+  "description": "Interactive mathematical scenes and deterministic animation in TypeScript",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js"
+    },
+    "./react/style.css": "./dist/react/style.css",
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-assets.mjs",
+    "test": "npm run build && node --test --test-isolation=none tests/*.test.mjs",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "katex": "^0.18.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "katex": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "@types/react": "^19.1.8",
+    "@types/katex": "^0.16.8",
+    "react": "^19.1.0",
+    "katex": "^0.18.7"
+  }
+}
