@@ -437,3 +437,92 @@ All six events are demonstrated in the **All animations** selector. They accept 
 These are entrance events: the target is hidden before its first entrance. Add/FadeIn can reveal it again after a flash. New growth events target individual drawable objects rather than Group objects; GrowFromEdge requires vector/mesh bounds, and SpinInFromNothing excludes text labels. MathTex retains its documented movement/fade/scale restrictions. Growth anchors are sampled at event start. ShowPassingFlash requires a continuous path; sampled function graphs use their base domain during the flash rather than adaptive viewport sampling.
 
 Frames may expose `fillReveal`, `strokeRange`, and `arrowScale` for these effects. Custom renderers should use `fillReveal ?? reveal` for interior opacity, clip strokeRange by arc length without closing the clipped segment, and scale arrowheads with arrowScale. Existing Create/Uncreate behavior is unchanged.
+
+## More geometry, layouts and animation
+
+### Geometry
+
+- `Annulus {radius:1, innerRadius:0.5}` and `AnnularSector` (also `startAngle`, `angle`) preserve the hole in Canvas filling/picking and Three.js triangles. Radii must satisfy `0 < innerRadius < radius`; a sector has a nonzero sweep of at most one turn.
+- `Elbow {width:0.25, angle:0}`; `RegularPolygram {sides:5, step:2, radius:1}` draws closed stroke cycles. Polygram fills and continuous-path operations are not supported.
+- `ConvexHull {points:[...]}` computes a 2D hull, discarding interior/duplicate points. `ConvexHull3D` accepts 4–64 points and merges coplanar faces.
+- `Icosahedron` and `Dodecahedron` use a circumradius `radius` (default 1). `Polyhedron {points, faces}` accepts a closed shell of planar convex faces, each described by vertex indices. Invalid, flat, open or nonconvex faces are rejected.
+- `SurroundingRectangle`, `BackgroundRectangle`, and `Brace` take a same-space `target` pointing to a 2D path or point. They follow its evaluated bounds, with `padding` default 0.15. Braces add `side` (default `bottom`) and `depth` (default 0.2). Background rectangles default to full fill opacity; declare them before the foreground object. Text measurement, group bounds and ArcBrace are not implemented.
+
+### Matrices, charts and graphs
+
+These `plane2d` layouts compile into an ordinary Group and stable child objects. The compiled document contains the expanded form and remains serializable. Table objects are intentionally out of scope.
+
+```json
+{"id":"m","type":"Matrix","entries":[["x","y"],["z","1"]],"cellWidth":1.5,"cellHeight":0.8}
+```
+
+`Matrix` uses KaTeX strings. `DecimalMatrix` accepts scalar expressions and `decimals` (default 2); `IntegerMatrix` displays zero decimal places. Rows must be rectangular, with at most 32 rows/columns and 512 cells. Font size remains a display setting; choose cell dimensions to accommodate your content. Children use IDs such as `m_cell_0_0`, `m_left_bracket` and `m_right_bracket`.
+
+`BarChart {values:[1,-2,"a"], labels:["A","B","C"], barWidth:0.7, gap:0.3}` creates signed bars around a zero baseline. Zero bars have a negligible height. Labels are optional; axes are authored separately. Bar IDs are `id_bar_0`, etc.
+
+`SampleSpace {probabilities:[0.25,0.75], labels:["A","B"], width:6, height:2}` creates horizontal partitions. Probabilities must be positive and sum to one.
+
+`Graph` and `DiGraph` accept `vertices:["a","b"]`, `edges:[["a","b"]]`, optional `layout:"circle"|"line"`, `radius`, `labels`, and optional complete `positions:{"a":[0,0],"b":[2,1]}`. Vertex/edge IDs are `id_vertex_a` and `id_edge_0`. Edges use the declared layout; separately moving a vertex does not relayout its edges. Self loops and automatic force layout are not implemented. Qualified references can read generated vertex points. Child IDs must not collide with authored object IDs.
+
+### Text, choreography and deformation
+
+- `AddTextLetterByLetter`, `RemoveTextLetterByLetter` and `AddTextWordByWord` target plain Text. Grapheme segmentation keeps combined emoji and accents intact. These reveal whole characters/words, not glyph strokes.
+- `ShowIncreasingSubsets` reveals Group children in order; `ShowSubmobjectsOneByOne` leaves only the most recently revealed child visible, including at completion.
+- `Blink {count:1}` temporarily dims opacity. `ApplyWave {amplitude:0.3, waves:1, direction:[0,1,0]}` temporarily deforms a continuous vector path and restores it at completion.
+- `Homotopy {expressions:["x","y+alpha*sin(x)"]}` evaluates a local Cartesian map with `alpha` running from 0 to 1. Supply an identity map at alpha 0 for a continuous entrance.
+- `ApplyPointwiseFunction {expressions:["x","y+x*x"]}` interpolates from the original path to the mapped path.
+- `PhaseFlow {expressions:["-y","x"], virtualTime:3.14, steps:128}` integrates a local vector field using fixed-step RK4. `steps` is capped at 512; paths use 128 samples. `virtualTime` defaults to event duration and can be negative. Parameters are frozen at event start; `t` is integration time. Completed deformation results are cached. These mappings accept points/continuous paths, not groups, labels, images, meshes or disconnected contours.
+- `Restore {at:0}` restores an explicit historical snapshot; `at` must not exceed the event start. Positions/colors/opacity and matrix elements interpolate; compatible paths morph, other geometry switches at completion. This is a deterministic snapshot, not a mutable save-state stack.
+- `Swap {to:"s.other"}` exchanges the centers of two drawable siblings. `FadeTransform {to:"s.other"}` crossfades source into destination and transfers visibility. It does not match glyphs or morph geometry.
+- `LaggedStartMap {objects:["s.a","s.b"], animation:{type:"Shift",by:[0,2],duration:1}, lagRatio:0.5}` expands one event template into a staggered composition. The outer duration can rescale the composition.
+
+### Camera and easing
+
+`CameraMove {space:"solid", position:[7,-5,3], center:[0,0,1]}` interpolates position and look-at center in `space3d`. Paths crossing the look-at center are rejected. `CameraOrbit {space:"solid", angle:3.14, axis:[0,0,1]}` rotates the viewpoint around its center (default axis z). Interactive camera offsets remain available; animated roll and projection switching are not implemented.
+
+`easingNames` exports 23 bounded curves: the original `linear`, `smooth`, `ease-in`, `ease-out`; `smoother`; and the `sine`, `cubic`, `quart`, `quint`, `expo`, `circ` families with `-in`, `-out`, `-in-out`. `easeProgress` evaluates these independently of rendering.
+
+### Raster images
+
+`ImageMobject {source:"./picture.png", width:2, height:2}` displays an image in `plane2d`. Width and height are explicit world dimensions; intrinsic image size does not determine aspect ratio. The player preloads resources before replacing the current scene. HTTP(S), relative image URLs and PNG/JPEG/WebP/GIF data URLs are accepted; executable URL schemes are rejected. At most 256 unique sources and 64 million decoded pixels are permitted.
+
+`ImageSequence {sources:["./a.png","./b.png"], fps:12, start:0, loop:false, width:2, height:2}` selects frames from scene time. It holds the first frame before start and the last frame after completion unless looping. Browser resource caching handles repeated image sources. Images support affine 2D positioning/rotation/scaling and fading; 3D image planes and pixel deformation are not implemented.
+
+
+### Boolean paths and animated boundaries
+
+`Union`, `Difference`, `Intersection`, and `Exclusion` take `operands:["s.a","s.b"]` (2–32 references to closed paths in `plane2d`). Difference subtracts subsequent operands from the first. Operands retain their visibility; set their opacity to zero if only the result should be visible. The result follows evaluated operand geometry, preserves disconnected polygons and holes, and can be empty. Curves use their sampled outlines. Limits are 8192 input vertices and 16384 output vertices. Continuous-path morph/follow operations reject these potentially disconnected results.
+
+`ArcPolygon {points:[[0,0],[2,0],[1,2]], angles:[0,0.5,0.5]}` joins each vertex to the next with its signed arc sweep. Omitted angles give straight edges. There must be one angle per edge, with absolute sweep below one turn; up to 128 vertices are accepted.
+
+`AnimatedBoundary {target:"s.shape", period:2, timeWidth:0.25, colors:["#58a6ff","#75dda5"]}` draws a repeating stroke window over a continuous path and interpolates its color each cycle. It leaves the source visible, follows its current geometry, and uses scene time so seeking is deterministic. No animation work runs while the player is paused.
+
+
+### Cyclic replacement and complex homotopy
+
+```json
+{"type":"CyclicReplace","objects":["s.a","s.b","s.c"],"start":1,"duration":2,"easing":"smooth"}
+```
+
+Each object moves to the next object's center as it was at the event start; the last moves to the first. Targets must be distinct drawable siblings in the same space. Two targets act like `Swap`. IDs, shape, color and visibility are preserved. A simultaneous position writer on any target is rejected. Groups themselves are not targets, but drawable children of one transformed group are supported.
+
+```json
+{"type":"ComplexHomotopy","object":"s.curve","expression":"z + 0.25*alpha*z^2","duration":2}
+```
+
+This maps the local Cartesian point `(x,y)` to complex `z=x+iy` in `plane2d`. `alpha` is eased event progress, `t` is event-start time plus eased elapsed duration, and named parameters are sampled at the event start. The existing safe complex parser supports principal branches; executable code and arbitrary property access remain rejected. Supply an identity map at alpha zero for a continuous start. Points and continuous paths are supported; paths use 128 samples. Disconnected contours, meshes, images, labels and groups are rejected. Non-finite results hide the object and produce a frame diagnostic. Repeated seeking and parameter overrides reuse the deterministic deformation cache.
+
+
+## Emphasis overlays and copying transforms
+
+These events appear in **All animations** and support deterministic seeking.
+
+- `Flash {object:"s.shape", radius:0.3, lineLength:0.3, numLines:12}` emits radial strokes around the target. `numLines` must be an integer from 2 to 64.
+- `FocusOn {object:"s.shape", radius:3}` shrinks a translucent circle onto the target.
+- `Circumscribe {object:"s.shape", padding:0.15}` draws and fades a rectangle around its geometric bounds.
+
+All three accept an optional hex `color` (default `#f4b66b`). They follow the live target in `plane2d`, preserve its state, and can run alongside its movement. Targets must be individual drawables; Circumscribe excludes text because measured glyph bounds are unavailable. Distances are Cartesian space units before space transforms.
+
+`TransformFromCopy {object:"s.source", to:"s.destination"}` morphs a temporary copy between continuous vector paths in the same space, including 3D. It snapshots both paths at event start, preserves the source, and hides the destination until completion. Different parent groups are allowed. The source may animate independently; overlapping writes to the destination are rejected. Text, meshes, groups and disconnected paths are unsupported.
+
+Temporary frames have synthetic IDs and `interactive:false`. Custom renderers should draw them without picking or dragging them, and release their resources when the frames disappear after completion or seeking.

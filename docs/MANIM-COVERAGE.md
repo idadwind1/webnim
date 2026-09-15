@@ -15,7 +15,7 @@ Baseline: Manim Community v0.21.0 [mobjects reference](https://docs.manim.commun
 | Rectangle, Square                                                  | Supported | Width/height/size                                                                           |
 | Circle, Ellipse, Arc, Sector                                       | Supported | Sampled paths; no symbolic intersections                                                    |
 | CubicBezier                                                        | Supported | `Bezier`, chained cubic control points                                                      |
-| FunctionGraph                                                      | Partial   | Parsed expression, finite domain, configurable sampling; non-finite samples diagnosed       |
+| FunctionGraph | Supported | Optional domain, adaptive viewport sampling and discontinuity breaks |
 | ParametricFunction                                                 | Supported | `ParametricCurve`, 1D/2D/polar/3D native expressions                                        |
 | Polar functions                                                    | Supported | `PolarGraph`                                                                                |
 | TangentLine, point from proportion                                 | Partial   | Typed `Tangent`/`PointOnCurve`, numerical sampled arc length                                |
@@ -43,41 +43,41 @@ Baseline: Manim Community v0.21.0 [mobjects reference](https://docs.manim.commun
 | Wait                                                               | Supported | Timeline gaps and explicit document duration                                                |
 | Scene changes                                                      | Supported | `SwitchSpace`, cut/fade, single clock, destination interaction                              |
 | Free camera exploration                                            | Supported | Independent per-space pan/zoom/orbit; no automatic selection                                |
-| Animated camera, MovingCamera, ThreeDCamera choreography           | Partial   | CameraZoom (all spaces), CameraWindow (1D/2D); projection/alignment planned                                 |
+| Animated camera, MovingCamera, ThreeDCamera choreography | Partial | CameraZoom, CameraWindow, CameraMove and CameraOrbit; no animated roll or projection switching |
 | Coordinate slicing / partial derivative cross-sections             | Planned   | Declarative constraints/slicing planes; axis visibility is already configurable             |
-| BarChart, SampleSpace, probability diagrams                        | Planned   | Later-stage charts                                                                          |
-| Table, MathTable, DecimalTable, MobjectTable                       | Planned   | Later-stage structured tables                                                               |
-| Matrix, DecimalMatrix, IntegerMatrix, MobjectMatrix                | Planned   | Later-stage matrix layout                                                                   |
-| Graph, DiGraph, layout functions                                   | Planned   | Declarative graph layouts                                                                   |
+| BarChart, SampleSpace, probability diagrams | Partial | Signed bars and labeled probability partitions; no automatic axes or nested conditional diagrams |
+| Table, MathTable, DecimalTable, MobjectTable | Excluded | Removed from scope at user request |
+| Matrix, DecimalMatrix, IntegerMatrix, MobjectMatrix | Partial | Fixed-cell matrix layout, KaTeX and dynamic numeric entries; MobjectMatrix remains planned |
+| Graph, DiGraph, layout functions | Partial | Circle, line and explicit 2D layouts; static edges, no force layout or self loops |
 | ArrowVectorField, StreamLines | Partial | Cartesian fields, bounded grids and RK4 streamlines; no component morphing |
 | TracedPath | Supported | Deterministic historical point samples and optional trailing time window |
-| AnimatedBoundary | Planned | Animated boundary emphasis |
+| AnimatedBoundary | Supported | Repeating stroke window and color cycling on a referenced continuous path |
 | ImplicitFunction | Partial | Bounded 2D marching squares; disconnected contour components |
 | ArcBetweenPoints | Supported | Signed circular sweep between endpoints |
-| Annulus, AnnularSector, ArcPolygon | Planned | Additional geometry |
+| Annulus, AnnularSector, ArcPolygon | Supported | Hole-preserving annular paths and per-edge signed arc sweeps |
 | DashedLine, DoubleArrow, CurvedArrow, CurvedDoubleArrow | Supported | World-space dashes and endpoint arrowheads in Canvas/Three.js |
 | Angle, RightAngle | Supported | Ray-defined markers, live coordinate references, perpendicularity validation |
-| Elbow, labeled geometry | Planned | Additional geometry helpers |
+| Elbow, labeled geometry | Partial | Elbow supported; labels can be composed separately |
 | RoundedRectangle, Triangle | Supported | Rounded corners and equilateral triangle |
-| RegularPolygram, ConvexHull | Planned | Additional polygon helpers |
-| Union, Difference, Intersection, Exclusion                         | Planned   | Geometry boolean operations                                                                 |
-| Brace, ArcBrace, surrounding/background rectangles                 | Planned   | Declarative geometry/layout equivalents                                                     |
+| RegularPolygram, ConvexHull | Partial | Stroke-only polygrams, planar convex hull; no self-intersecting polygram fill |
+| Union, Difference, Intersection, Exclusion | Supported | Bounded polygon clipping with disconnected components and hole triangulation; sampled curved boundaries |
+| Brace, ArcBrace, surrounding/background rectangles | Partial | 2D path/point bounds, Brace, SurroundingRectangle, BackgroundRectangle; no ArcBrace or measured text bounds |
 | ComplexPlane, nonlinear/log scales                                 | Partial   | Complex transforms supported; alternate axis scale systems planned                          |
 | ShowPassingFlash | Supported | Temporary moving arc-length stroke window; source hidden after completion |
-| Flash, FocusOn, Circumscribe, ApplyWave, Blink | Planned | Richer indication |
+| Flash, FocusOn, Circumscribe, ApplyWave, Blink | Partial | ApplyWave/Blink and temporary 2D Flash/FocusOn/Circumscribe overlays; no group or measured text outlines |
 | GrowArrow, GrowFromEdge, GrowFromPoint, SpinInFromNothing | Partial | Anchored drawable-object growth and centered spin; new growth events exclude groups, and label restrictions apply |
 | DrawBorderThenFill | Supported | Separate outline and fill phases; supports vector-path groups |
-| ShowIncreasingSubsets, ShowSubmobjectsOneByOne | Planned | Subobject choreography |
-| Write, Unwrite, AddTextLetterByLetter, word writing                | Planned   | Actual glyph-level geometry; explicitly unsupported today                                   |
+| ShowIncreasingSubsets, ShowSubmobjectsOneByOne | Supported | Ordered group children, including nested descendants |
+| Write, Unwrite, AddTextLetterByLetter, word writing | Partial | Unicode grapheme reveal/removal and AddTextWordByWord; actual glyph stroke writing remains planned |
 | TransformMatchingTex, TransformMatchingShapes                      | Planned   | Matching/glyph correspondence                                                               |
-| Homotopy, ComplexHomotopy, PhaseFlow                               | Planned   | Declarative general deformation                                                             |
-| ApplyFunction, ApplyMethod, ApplyPointwiseFunction                 | Planned   | Safe declarative equivalents, never executable JSON callbacks                               |
-| Restore, Swap, CyclicReplace, TransformFromCopy, FadeTransform     | Planned   | Additional state/transform primitives                                                       |
-| ChangeSpeed, arbitrary rate functions                              | Partial   | Four built-in easings; richer declarative time warps planned                                |
-| LaggedStartMap                                                     | Planned   | Declarative target-list expansion                                                           |
-| Polyhedron, Dodecahedron, Icosahedron, ConvexHull3D                | Planned   | Advanced 3D primitives                                                                      |
+| Homotopy, ComplexHomotopy, PhaseFlow | Partial | Safe Cartesian/complex homotopies and deterministic RK4 PhaseFlow on points/continuous paths; no mesh or label deformation |
+| ApplyFunction, ApplyMethod, ApplyPointwiseFunction | Partial | ApplyPointwiseFunction uses safe Cartesian expressions; executable callbacks stay excluded |
+| Restore, Swap, CyclicReplace, TransformFromCopy, FadeTransform | Partial | Snapshot Restore, sibling Swap/CyclicReplace, crossfade FadeTransform and continuous-path TransformFromCopy |
+| ChangeSpeed, arbitrary rate functions | Partial | 23 bounded built-in easing curves; custom time warps remain planned |
+| LaggedStartMap | Supported | Declarative target-list expansion with one shared animation template |
+| Polyhedron, Dodecahedron, Icosahedron, ConvexHull3D | Supported | Closed convex-face shells, Platonic meshes and bounded 64-point spatial hulls |
 | Code, markup/paragraph/title/bulleted text, Typst                  | Planned   | Structured text/layout adapters                                                             |
-| ImageMobject and image sequences                                   | Planned   | Resource declarations and preload policy                                                    |
+| ImageMobject and image sequences | Partial | Preloaded 2D ImageMobject/ImageSequence, affine transforms and deterministic frames; no 3D textured images |
 | SVG import, SVGMobject, VMobjectFromSVGPath                        | Excluded  | Explicitly outside project scope                                                            |
 | Executable Python/JavaScript callbacks, arbitrary updaters         | Excluded  | No executable code in scene JSON; typed dependencies/expressions replace callback use cases |
 | Manim Python script compatibility, Python CLI, video pipeline      | Excluded  | Browser-native interactive TypeScript engine                                                |
