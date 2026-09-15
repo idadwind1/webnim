@@ -1,0 +1,2490 @@
+{
+  "version": 1,
+  "parameters": {
+    "a": 0.5
+  },
+  "theme": {
+    "background": "#10141d",
+    "foreground": "#dbe3ee",
+    "axes": "#79899f",
+    "grid": "#283344",
+    "objectColors": [
+      "#58a6ff",
+      "#75dda5",
+      "#f4b66b"
+    ]
+  },
+  "spaces": [
+    {
+      "name": "stage",
+      "type": "plane2d",
+      "camera": {
+        "scale": 70
+      },
+      "objects": [
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo0_shape",
+          "caption": "Add: The square appears instantly."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo1_shape",
+          "caption": "Create: Draw the square outline progressively."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo2_shape",
+          "caption": "Uncreate: Erase the outline in reverse."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo3_shape",
+          "caption": "FadeIn: Increase opacity from transparent to visible."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo4_shape",
+          "caption": "FadeOut: Fade the square away."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo5_shape",
+          "caption": "MoveTo: Move the center to the target position."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo6_shape",
+          "caption": "Shift: Move by a relative displacement."
+        },
+        {
+          "type": "Rectangle",
+          "width": 3,
+          "height": 1.2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo7_shape",
+          "caption": "Rotate: Rotate half a turn around the object center."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo8_shape",
+          "caption": "Scale: Enlarge the object around its center."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo9_shape",
+          "caption": "FadeToColor: Blend blue into pink."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo10_shape",
+          "caption": "ApplyMatrix: Shear the object while the coordinate grid stays fixed."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo11_shape",
+          "caption": "Indicate: Briefly enlarge and recolor, then restore the object."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo12_shape",
+          "caption": "Homotopy: Bend the outline with expressions in x, y and alpha."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo13_shape",
+          "caption": "ApplyPointwiseFunction: Interpolate toward a safe expression-defined mapping."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo14_shape",
+          "caption": "PhaseFlow: Integrate the rotational field with deterministic RK4."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo15_shape",
+          "caption": "Restore: Restore the object to its initial state."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo16_shape",
+          "caption": "Blink: Briefly blink, then restore the original opacity."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo17_shape",
+          "caption": "ApplyWave: Send a wave through the vector outline, then restore it."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo18_shape",
+          "caption": "Wiggle: Rock the object back and forth, then settle."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo19_shape",
+          "caption": "GrowFromCenter: Grow the object outward from its center."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo20_shape",
+          "caption": "GrowFromPoint: Expand the square from the fixed point (−3, −1)."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo21_shape",
+          "caption": "GrowFromEdge: Grow outward while the left edge stays anchored."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo22_shape",
+          "caption": "SpinInFromNothing: Spin and grow the square around its center."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo23_shape",
+          "caption": "DrawBorderThenFill: Finish the outline before revealing the interior fill."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo24_shape",
+          "caption": "ShowPassingFlash: A short stroke travels around the outline, then disappears."
+        },
+        {
+          "type": "Arrow",
+          "from": [
+            -2,
+            -1
+          ],
+          "to": [
+            2,
+            1
+          ],
+          "style": {
+            "color": "#75dda5"
+          },
+          "id": "demo25_shape",
+          "caption": "GrowArrow: Grow an arrow from its stationary tail."
+        },
+        {
+          "type": "Text",
+          "text": "Hello, mathematical world! ✨",
+          "style": {
+            "fontSize": 26
+          },
+          "id": "demo26_shape",
+          "caption": "AddTextLetterByLetter: Reveal or remove whole Unicode graphemes and words."
+        },
+        {
+          "type": "Text",
+          "text": "Hello, mathematical world! ✨",
+          "style": {
+            "fontSize": 26
+          },
+          "id": "demo27_shape",
+          "caption": "RemoveTextLetterByLetter: Reveal or remove whole Unicode graphemes and words."
+        },
+        {
+          "type": "Text",
+          "text": "Hello, mathematical world! ✨",
+          "style": {
+            "fontSize": 26
+          },
+          "id": "demo28_shape",
+          "caption": "AddTextWordByWord: Reveal or remove whole Unicode graphemes and words."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.5,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "position": [
+            -2,
+            0
+          ],
+          "id": "demo29_a",
+          "caption": "ShowIncreasingSubsets: Reveal group children in their declared order."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.5,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "id": "demo29_b",
+          "caption": "ShowIncreasingSubsets: Reveal group children in their declared order."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.5,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "position": [
+            2,
+            0
+          ],
+          "id": "demo29_c",
+          "caption": "ShowIncreasingSubsets: Reveal group children in their declared order."
+        },
+        {
+          "type": "Group",
+          "children": [
+            "stage.demo29_a",
+            "stage.demo29_b",
+            "stage.demo29_c"
+          ],
+          "id": "demo29_shape",
+          "caption": "ShowIncreasingSubsets: Reveal group children in their declared order."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.5,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "position": [
+            -2,
+            0
+          ],
+          "id": "demo30_a",
+          "caption": "ShowSubmobjectsOneByOne: Reveal group children in their declared order."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.5,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "id": "demo30_b",
+          "caption": "ShowSubmobjectsOneByOne: Reveal group children in their declared order."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.5,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "position": [
+            2,
+            0
+          ],
+          "id": "demo30_c",
+          "caption": "ShowSubmobjectsOneByOne: Reveal group children in their declared order."
+        },
+        {
+          "type": "Group",
+          "children": [
+            "stage.demo30_a",
+            "stage.demo30_b",
+            "stage.demo30_c"
+          ],
+          "id": "demo30_shape",
+          "caption": "ShowSubmobjectsOneByOne: Reveal group children in their declared order."
+        },
+        {
+          "type": "Point",
+          "at": [
+            -2,
+            0
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "pointSize": 8
+          },
+          "id": "demo31_shape",
+          "caption": "MoveAlongPath: The point follows the curved guide."
+        },
+        {
+          "type": "Bezier",
+          "points": [
+            [
+              -2,
+              0
+            ],
+            [
+              -1,
+              3
+            ],
+            [
+              1,
+              -3
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "style": {
+            "color": "#79899f"
+          },
+          "id": "demo31_path",
+          "caption": "MoveAlongPath: The point follows the curved guide."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo32_shape",
+          "caption": "Transform: Morph the square into a star while keeping the source object ID."
+        },
+        {
+          "type": "Star",
+          "tips": 5,
+          "radius": 1.6,
+          "innerRadius": 0.7,
+          "position": [
+            1,
+            0
+          ],
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.3,
+            "opacity": 0
+          },
+          "id": "demo32_target",
+          "caption": "Transform: Morph the square into a star while keeping the source object ID."
+        },
+        {
+          "type": "Square",
+          "size": 2,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.3
+          },
+          "id": "demo33_shape",
+          "caption": "ReplacementTransform: Morph into a star and transfer visibility to the destination object."
+        },
+        {
+          "type": "Star",
+          "tips": 5,
+          "radius": 1.6,
+          "innerRadius": 0.7,
+          "position": [
+            1,
+            0
+          ],
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.3
+          },
+          "id": "demo33_target",
+          "caption": "ReplacementTransform: Morph into a star and transfer visibility to the destination object."
+        },
+        {
+          "type": "FunctionGraph",
+          "expression": "a*sin(x)",
+          "domain": [
+            -5,
+            5
+          ],
+          "id": "demo34_curve",
+          "caption": "AnimateParameter: Animate a from 0.5 to 2: the graph and number update together."
+        },
+        {
+          "type": "DecimalNumber",
+          "value": "a",
+          "position": [
+            0,
+            2.8
+          ],
+          "id": "demo34_value",
+          "caption": "AnimateParameter: Animate a from 0.5 to 2: the graph and number update together."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            1.5
+          ],
+          "id": "demo35_p0",
+          "caption": "EventGroup: Three circles move at the same time."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            0
+          ],
+          "id": "demo35_p1",
+          "caption": "EventGroup: Three circles move at the same time."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#f4b66b",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            -1.5
+          ],
+          "id": "demo35_p2",
+          "caption": "EventGroup: Three circles move at the same time."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            1.5
+          ],
+          "id": "demo36_p0",
+          "caption": "Succession: Each circle starts after the previous one finishes."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            0
+          ],
+          "id": "demo36_p1",
+          "caption": "Succession: Each circle starts after the previous one finishes."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#f4b66b",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            -1.5
+          ],
+          "id": "demo36_p2",
+          "caption": "Succession: Each circle starts after the previous one finishes."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            1.5
+          ],
+          "id": "demo37_p0",
+          "caption": "LaggedStart: The circles start at staggered times with overlap."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            0
+          ],
+          "id": "demo37_p1",
+          "caption": "LaggedStart: The circles start at staggered times with overlap."
+        },
+        {
+          "type": "Circle",
+          "radius": 0.4,
+          "style": {
+            "color": "#f4b66b",
+            "fillOpacity": 0.4
+          },
+          "position": [
+            -2,
+            -1.5
+          ],
+          "id": "demo37_p2",
+          "caption": "LaggedStart: The circles start at staggered times with overlap."
+        },
+        {
+          "type": "Circle",
+          "radius": 1.2,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "id": "demo44_shape",
+          "caption": "SwitchSpace: Crossfade from a circle scene to a star scene. Both are ordinary 2D spaces."
+        },
+        {
+          "type": "Point",
+          "at": [
+            -2,
+            2.1
+          ],
+          "style": {
+            "color": "#58a6ff",
+            "pointSize": 8
+          },
+          "id": "demo45_p0",
+          "caption": "Easing: Compare the four easing curves over the same distance and duration."
+        },
+        {
+          "type": "Text",
+          "text": "linear",
+          "position": [
+            -4,
+            2.1
+          ],
+          "style": {
+            "fontSize": 14
+          },
+          "id": "demo45_label0",
+          "caption": "Easing: Compare the four easing curves over the same distance and duration."
+        },
+        {
+          "type": "Point",
+          "at": [
+            -2,
+            0.7000000000000002
+          ],
+          "style": {
+            "color": "#75dda5",
+            "pointSize": 8
+          },
+          "id": "demo45_p1",
+          "caption": "Easing: Compare the four easing curves over the same distance and duration."
+        },
+        {
+          "type": "Text",
+          "text": "smooth",
+          "position": [
+            -4,
+            0.7000000000000002
+          ],
+          "style": {
+            "fontSize": 14
+          },
+          "id": "demo45_label1",
+          "caption": "Easing: Compare the four easing curves over the same distance and duration."
+        },
+        {
+          "type": "Point",
+          "at": [
+            -2,
+            -0.6999999999999997
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "pointSize": 8
+          },
+          "id": "demo45_p2",
+          "caption": "Easing: Compare the four easing curves over the same distance and duration."
+        },
+        {
+          "type": "Text",
+          "text": "ease-in",
+          "position": [
+            -4,
+            -0.6999999999999997
+          ],
+          "style": {
+            "fontSize": 14
+          },
+          "id": "demo45_label2",
+          "caption": "Easing: Compare the four easing curves over the same distance and duration."
+        },
+        {
+          "type": "Point",
+          "at": [
+            -2,
+            -2.099999999999999
+          ],
+          "style": {
+            "color": "#f778ba",
+            "pointSize": 8
+          },
+          "id": "demo45_p3",
+          "caption": "Easing: Compare the four easing curves over the same distance and duration."
+        },
+        {
+          "type": "Text",
+          "text": "ease-out",
+          "position": [
+            -4,
+            -2.099999999999999
+          ],
+          "style": {
+            "fontSize": 14
+          },
+          "id": "demo45_label3",
+          "caption": "Easing: Compare the four easing curves over the same distance and duration."
+        }
+      ]
+    },
+    {
+      "name": "zoom",
+      "type": "plane2d",
+      "camera": {
+        "scale": 65
+      },
+      "objects": [
+        {
+          "type": "Circle",
+          "radius": 1.2,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "id": "demo38_shape",
+          "caption": "CameraZoom: Zoom the camera toward the origin; the object coordinates stay unchanged."
+        }
+      ]
+    },
+    {
+      "name": "window",
+      "type": "plane2d",
+      "camera": {
+        "scale": 65
+      },
+      "objects": [
+        {
+          "type": "Circle",
+          "radius": 1.2,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "position": [
+            3,
+            0
+          ],
+          "id": "demo39_shape",
+          "caption": "CameraWindow: Pan and zoom to fit x ∈ [1,5], y ∈ [−2,2]."
+        },
+        {
+          "type": "Point",
+          "at": [
+            0,
+            0
+          ],
+          "id": "demo39_reference",
+          "caption": "CameraWindow: Pan and zoom to fit x ∈ [1,5], y ∈ [−2,2]."
+        }
+      ]
+    },
+    {
+      "name": "cameramove",
+      "type": "space3d",
+      "camera": {
+        "position": [
+          7,
+          -9,
+          7
+        ]
+      },
+      "objects": [
+        {
+          "type": "Icosahedron",
+          "radius": 2,
+          "id": "demo40_shape",
+          "caption": "CameraMove: Move the 3D viewpoint while preserving interactive orbit controls."
+        }
+      ]
+    },
+    {
+      "name": "cameraorbit",
+      "type": "space3d",
+      "camera": {
+        "position": [
+          7,
+          -9,
+          7
+        ]
+      },
+      "objects": [
+        {
+          "type": "Icosahedron",
+          "radius": 2,
+          "id": "demo41_shape",
+          "caption": "CameraOrbit: Move the 3D viewpoint while preserving interactive orbit controls."
+        }
+      ]
+    },
+    {
+      "name": "matrix",
+      "type": "plane2d",
+      "camera": {
+        "scale": 65
+      },
+      "objects": [
+        {
+          "type": "Circle",
+          "radius": 1.2,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "id": "demo42_shape",
+          "caption": "ApplySpaceMatrix: Shear the whole coordinate plane, including its grid and objects."
+        },
+        {
+          "type": "Arrow",
+          "from": [
+            0,
+            0
+          ],
+          "to": [
+            1,
+            1
+          ],
+          "id": "demo42_vector",
+          "caption": "ApplySpaceMatrix: Shear the whole coordinate plane, including its grid and objects."
+        }
+      ]
+    },
+    {
+      "name": "complex",
+      "type": "plane2d",
+      "camera": {
+        "scale": 65
+      },
+      "objects": [
+        {
+          "type": "Circle",
+          "radius": 1.2,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.2
+          },
+          "id": "demo43_shape",
+          "caption": "ApplyComplexFunction: Warp the plane with the complex map z → z + 0.12z²."
+        },
+        {
+          "type": "Arrow",
+          "from": [
+            0,
+            0
+          ],
+          "to": [
+            1,
+            1
+          ],
+          "id": "demo43_vector",
+          "caption": "ApplyComplexFunction: Warp the plane with the complex map z → z + 0.12z²."
+        }
+      ]
+    },
+    {
+      "name": "destination",
+      "type": "plane2d",
+      "camera": {
+        "scale": 65
+      },
+      "objects": [
+        {
+          "id": "star",
+          "type": "Star",
+          "tips": 5,
+          "radius": 1.5,
+          "style": {
+            "color": "#75dda5",
+            "fillOpacity": 0.3
+          }
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "FadeOut",
+      "object": "stage.demo0_shape",
+      "start": 4.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 0,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo0_shape",
+      "start": 1,
+      "duration": 0,
+      "easing": "smooth"
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo1_shape",
+      "start": 9.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 5,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Create",
+      "object": "stage.demo1_shape",
+      "start": 6,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo2_shape",
+      "start": 10,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo2_shape",
+      "start": 14.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 10,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Uncreate",
+      "object": "stage.demo2_shape",
+      "start": 11,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo3_shape",
+      "start": 19.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 15,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "FadeIn",
+      "object": "stage.demo3_shape",
+      "start": 16,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo4_shape",
+      "start": 20,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo4_shape",
+      "start": 24.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 20,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo4_shape",
+      "start": 21,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo5_shape",
+      "start": 25,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo5_shape",
+      "start": 29.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 25,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "MoveTo",
+      "object": "stage.demo5_shape",
+      "start": 26,
+      "duration": 2.5,
+      "easing": "smooth",
+      "to": [
+        2,
+        1
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo6_shape",
+      "start": 30,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo6_shape",
+      "start": 34.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 30,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Shift",
+      "object": "stage.demo6_shape",
+      "start": 31,
+      "duration": 2.5,
+      "easing": "smooth",
+      "by": [
+        2,
+        1
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo7_shape",
+      "start": 35,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo7_shape",
+      "start": 39.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 35,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Rotate",
+      "object": "stage.demo7_shape",
+      "start": 36,
+      "duration": 2.5,
+      "easing": "smooth",
+      "angle": 3.141592653589793
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo8_shape",
+      "start": 40,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo8_shape",
+      "start": 44.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 40,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Scale",
+      "object": "stage.demo8_shape",
+      "start": 41,
+      "duration": 2.5,
+      "easing": "smooth",
+      "factor": 1.8
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo9_shape",
+      "start": 45,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo9_shape",
+      "start": 49.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 45,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "FadeToColor",
+      "object": "stage.demo9_shape",
+      "start": 46,
+      "duration": 2.5,
+      "easing": "smooth",
+      "color": "#f778ba"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo10_shape",
+      "start": 50,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo10_shape",
+      "start": 54.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 50,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ApplyMatrix",
+      "object": "stage.demo10_shape",
+      "start": 51,
+      "duration": 2.5,
+      "easing": "smooth",
+      "matrix": [
+        [
+          1,
+          0.8
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo11_shape",
+      "start": 55,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo11_shape",
+      "start": 59.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 55,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Indicate",
+      "object": "stage.demo11_shape",
+      "start": 56,
+      "duration": 2.5,
+      "easing": "smooth",
+      "color": "#f4b66b",
+      "factor": 1.35
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo12_shape",
+      "start": 60,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo12_shape",
+      "start": 64.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 60,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Homotopy",
+      "object": "stage.demo12_shape",
+      "start": 61,
+      "duration": 2.5,
+      "easing": "smooth",
+      "expressions": [
+        "x",
+        "y+alpha*sin(x)"
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo13_shape",
+      "start": 65,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo13_shape",
+      "start": 69.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 65,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ApplyPointwiseFunction",
+      "object": "stage.demo13_shape",
+      "start": 66,
+      "duration": 2.5,
+      "easing": "smooth",
+      "expressions": [
+        "x",
+        "y+.5*x*x"
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo14_shape",
+      "start": 70,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo14_shape",
+      "start": 74.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 70,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "PhaseFlow",
+      "object": "stage.demo14_shape",
+      "start": 71,
+      "duration": 2.5,
+      "easing": "smooth",
+      "expressions": [
+        "-y",
+        "x"
+      ],
+      "virtualTime": 1.5
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo15_shape",
+      "start": 75,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo15_shape",
+      "start": 79.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 75,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Restore",
+      "object": "stage.demo15_shape",
+      "start": 76,
+      "duration": 2.5,
+      "easing": "smooth",
+      "at": 0
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo16_shape",
+      "start": 80,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo16_shape",
+      "start": 84.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 80,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Blink",
+      "object": "stage.demo16_shape",
+      "start": 81,
+      "duration": 2.5,
+      "easing": "smooth",
+      "count": 2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo17_shape",
+      "start": 85,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo17_shape",
+      "start": 89.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 85,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ApplyWave",
+      "object": "stage.demo17_shape",
+      "start": 86,
+      "duration": 2.5,
+      "easing": "smooth",
+      "amplitude": 0.5,
+      "waves": 2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo18_shape",
+      "start": 90,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo18_shape",
+      "start": 94.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 90,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Wiggle",
+      "object": "stage.demo18_shape",
+      "start": 91,
+      "duration": 2.5,
+      "easing": "smooth",
+      "angle": 0.35
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo19_shape",
+      "start": 99.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 95,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "GrowFromCenter",
+      "object": "stage.demo19_shape",
+      "start": 96,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo20_shape",
+      "start": 104.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 100,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "GrowFromPoint",
+      "object": "stage.demo20_shape",
+      "start": 101,
+      "duration": 2.5,
+      "easing": "smooth",
+      "point": [
+        -3,
+        -1
+      ]
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo21_shape",
+      "start": 109.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 105,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "GrowFromEdge",
+      "object": "stage.demo21_shape",
+      "start": 106,
+      "duration": 2.5,
+      "easing": "smooth",
+      "edge": "left"
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo22_shape",
+      "start": 114.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 110,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "SpinInFromNothing",
+      "object": "stage.demo22_shape",
+      "start": 111,
+      "duration": 2.5,
+      "easing": "smooth",
+      "angle": 6.283185307179586
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo23_shape",
+      "start": 119.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 115,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "DrawBorderThenFill",
+      "object": "stage.demo23_shape",
+      "start": 116,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo24_shape",
+      "start": 124.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 120,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ShowPassingFlash",
+      "object": "stage.demo24_shape",
+      "start": 121,
+      "duration": 2.5,
+      "easing": "smooth",
+      "timeWidth": 0.2
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo25_shape",
+      "start": 129.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 125,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "GrowArrow",
+      "object": "stage.demo25_shape",
+      "start": 126,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo26_shape",
+      "start": 134.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 130,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "AddTextLetterByLetter",
+      "object": "stage.demo26_shape",
+      "start": 131,
+      "duration": 2.5
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo27_shape",
+      "start": 135,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo27_shape",
+      "start": 139.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 135,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "RemoveTextLetterByLetter",
+      "object": "stage.demo27_shape",
+      "start": 136,
+      "duration": 2.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo28_shape",
+      "start": 144.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 140,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "AddTextWordByWord",
+      "object": "stage.demo28_shape",
+      "start": 141,
+      "duration": 2.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo29_shape",
+      "start": 149.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 145,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ShowIncreasingSubsets",
+      "object": "stage.demo29_shape",
+      "start": 146,
+      "duration": 2.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo30_shape",
+      "start": 154.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 150,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ShowSubmobjectsOneByOne",
+      "object": "stage.demo30_shape",
+      "start": 151,
+      "duration": 2.5
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo31_shape",
+      "start": 155,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo31_shape",
+      "start": 159.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo31_path",
+      "start": 155,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo31_path",
+      "start": 159.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 155,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "MoveAlongPath",
+      "object": "stage.demo31_shape",
+      "path": "stage.demo31_path",
+      "start": 156,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo32_shape",
+      "start": 160,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo32_shape",
+      "start": 164.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 160,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Transform",
+      "object": "stage.demo32_shape",
+      "to": "stage.demo32_target",
+      "start": 161,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo33_shape",
+      "start": 165,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo33_shape",
+      "start": 169.8,
+      "duration": 0.2
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo33_target",
+      "start": 169.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 165,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ReplacementTransform",
+      "object": "stage.demo33_shape",
+      "to": "stage.demo33_target",
+      "start": 166,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo34_curve",
+      "start": 170,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo34_curve",
+      "start": 174.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo34_value",
+      "start": 170,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo34_value",
+      "start": 174.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 170,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "AnimateParameter",
+      "parameter": "a",
+      "to": 2,
+      "start": 171,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo35_p0",
+      "start": 175,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo35_p0",
+      "start": 179.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo35_p1",
+      "start": 175,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo35_p1",
+      "start": 179.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo35_p2",
+      "start": 175,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo35_p2",
+      "start": 179.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 175,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "EventGroup",
+      "start": 176,
+      "duration": 2.5,
+      "events": [
+        {
+          "type": "Shift",
+          "object": "stage.demo35_p0",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        },
+        {
+          "type": "Shift",
+          "object": "stage.demo35_p1",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        },
+        {
+          "type": "Shift",
+          "object": "stage.demo35_p2",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        }
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo36_p0",
+      "start": 180,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo36_p0",
+      "start": 184.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo36_p1",
+      "start": 180,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo36_p1",
+      "start": 184.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo36_p2",
+      "start": 180,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo36_p2",
+      "start": 184.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 180,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Succession",
+      "start": 181,
+      "duration": 2.5,
+      "events": [
+        {
+          "type": "Shift",
+          "object": "stage.demo36_p0",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        },
+        {
+          "type": "Shift",
+          "object": "stage.demo36_p1",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        },
+        {
+          "type": "Shift",
+          "object": "stage.demo36_p2",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        }
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo37_p0",
+      "start": 185,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo37_p0",
+      "start": 189.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo37_p1",
+      "start": 185,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo37_p1",
+      "start": 189.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo37_p2",
+      "start": 185,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo37_p2",
+      "start": 189.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 185,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "LaggedStart",
+      "start": 186,
+      "duration": 2.5,
+      "lagRatio": 0.45,
+      "events": [
+        {
+          "type": "Shift",
+          "object": "stage.demo37_p0",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        },
+        {
+          "type": "Shift",
+          "object": "stage.demo37_p1",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        },
+        {
+          "type": "Shift",
+          "object": "stage.demo37_p2",
+          "by": [
+            4,
+            0
+          ],
+          "duration": 1,
+          "easing": "smooth"
+        }
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "zoom.demo38_shape",
+      "start": 190,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "zoom.demo38_shape",
+      "start": 194.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "zoom",
+      "start": 190,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "CameraZoom",
+      "space": "zoom",
+      "factor": 2.2,
+      "start": 191,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "window.demo39_shape",
+      "start": 195,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "window.demo39_shape",
+      "start": 199.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "window.demo39_reference",
+      "start": 195,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "window.demo39_reference",
+      "start": 199.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "window",
+      "start": 195,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "CameraWindow",
+      "space": "window",
+      "x": [
+        1,
+        5
+      ],
+      "y": [
+        -2,
+        2
+      ],
+      "start": 196,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "cameramove.demo40_shape",
+      "start": 200,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "cameramove.demo40_shape",
+      "start": 204.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "cameramove",
+      "start": 200,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "CameraMove",
+      "space": "cameramove",
+      "start": 201,
+      "duration": 2.5,
+      "easing": "smooth",
+      "position": [
+        -7,
+        -5,
+        3
+      ],
+      "center": [
+        0,
+        0,
+        0.5
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "cameraorbit.demo41_shape",
+      "start": 205,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "cameraorbit.demo41_shape",
+      "start": 209.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "cameraorbit",
+      "start": 205,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "CameraOrbit",
+      "space": "cameraorbit",
+      "start": 206,
+      "duration": 2.5,
+      "easing": "smooth",
+      "angle": 3.141592653589793,
+      "axis": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "type": "Add",
+      "object": "matrix.demo42_shape",
+      "start": 210,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "matrix.demo42_shape",
+      "start": 214.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "matrix.demo42_vector",
+      "start": 210,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "matrix.demo42_vector",
+      "start": 214.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "matrix",
+      "start": 210,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ApplySpaceMatrix",
+      "space": "matrix",
+      "matrix": [
+        [
+          1,
+          0.8
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "start": 211,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "complex.demo43_shape",
+      "start": 215,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "complex.demo43_shape",
+      "start": 219.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "complex.demo43_vector",
+      "start": 215,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "complex.demo43_vector",
+      "start": 219.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "complex",
+      "start": 215,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "ApplyComplexFunction",
+      "space": "complex",
+      "expression": "z + 0.12*z^2",
+      "start": 216,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo44_shape",
+      "start": 220,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo44_shape",
+      "start": 224.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 220,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "destination",
+      "start": 221,
+      "duration": 2.5,
+      "transition": "fade"
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo45_p0",
+      "start": 225,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo45_p0",
+      "start": 229.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo45_label0",
+      "start": 225,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo45_label0",
+      "start": 229.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo45_p1",
+      "start": 225,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo45_p1",
+      "start": 229.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo45_label1",
+      "start": 225,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo45_label1",
+      "start": 229.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo45_p2",
+      "start": 225,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo45_p2",
+      "start": 229.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo45_label2",
+      "start": 225,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo45_label2",
+      "start": 229.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo45_p3",
+      "start": 225,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo45_p3",
+      "start": 229.8,
+      "duration": 0.2
+    },
+    {
+      "type": "Add",
+      "object": "stage.demo45_label3",
+      "start": 225,
+      "duration": 0
+    },
+    {
+      "type": "FadeOut",
+      "object": "stage.demo45_label3",
+      "start": 229.8,
+      "duration": 0.2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "stage",
+      "start": 225,
+      "duration": 0,
+      "transition": "cut"
+    },
+    {
+      "type": "Shift",
+      "object": "stage.demo45_p0",
+      "by": [
+        4,
+        0
+      ],
+      "start": 226,
+      "duration": 2.5,
+      "easing": "linear"
+    },
+    {
+      "type": "Shift",
+      "object": "stage.demo45_p1",
+      "by": [
+        4,
+        0
+      ],
+      "start": 226,
+      "duration": 2.5,
+      "easing": "smooth"
+    },
+    {
+      "type": "Shift",
+      "object": "stage.demo45_p2",
+      "by": [
+        4,
+        0
+      ],
+      "start": 226,
+      "duration": 2.5,
+      "easing": "ease-in"
+    },
+    {
+      "type": "Shift",
+      "object": "stage.demo45_p3",
+      "by": [
+        4,
+        0
+      ],
+      "start": 226,
+      "duration": 2.5,
+      "easing": "ease-out"
+    }
+  ],
+  "duration": 230
+}

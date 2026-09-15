@@ -1,0 +1,324 @@
+[
+  {
+    "name": "Add",
+    "description": "The square appears instantly.",
+    "start": 0,
+    "end": 5,
+    "space": "stage"
+  },
+  {
+    "name": "Create",
+    "description": "Draw the square outline progressively.",
+    "start": 5,
+    "end": 10,
+    "space": "stage"
+  },
+  {
+    "name": "Uncreate",
+    "description": "Erase the outline in reverse.",
+    "start": 10,
+    "end": 15,
+    "space": "stage"
+  },
+  {
+    "name": "FadeIn",
+    "description": "Increase opacity from transparent to visible.",
+    "start": 15,
+    "end": 20,
+    "space": "stage"
+  },
+  {
+    "name": "FadeOut",
+    "description": "Fade the square away.",
+    "start": 20,
+    "end": 25,
+    "space": "stage"
+  },
+  {
+    "name": "MoveTo",
+    "description": "Move the center to the target position.",
+    "start": 25,
+    "end": 30,
+    "space": "stage"
+  },
+  {
+    "name": "Shift",
+    "description": "Move by a relative displacement.",
+    "start": 30,
+    "end": 35,
+    "space": "stage"
+  },
+  {
+    "name": "Rotate",
+    "description": "Rotate half a turn around the object center.",
+    "start": 35,
+    "end": 40,
+    "space": "stage"
+  },
+  {
+    "name": "Scale",
+    "description": "Enlarge the object around its center.",
+    "start": 40,
+    "end": 45,
+    "space": "stage"
+  },
+  {
+    "name": "FadeToColor",
+    "description": "Blend blue into pink.",
+    "start": 45,
+    "end": 50,
+    "space": "stage"
+  },
+  {
+    "name": "ApplyMatrix",
+    "description": "Shear the object while the coordinate grid stays fixed.",
+    "start": 50,
+    "end": 55,
+    "space": "stage"
+  },
+  {
+    "name": "Indicate",
+    "description": "Briefly enlarge and recolor, then restore the object.",
+    "start": 55,
+    "end": 60,
+    "space": "stage"
+  },
+  {
+    "name": "Homotopy",
+    "description": "Bend the outline with expressions in x, y and alpha.",
+    "start": 60,
+    "end": 65,
+    "space": "stage"
+  },
+  {
+    "name": "ApplyPointwiseFunction",
+    "description": "Interpolate toward a safe expression-defined mapping.",
+    "start": 65,
+    "end": 70,
+    "space": "stage"
+  },
+  {
+    "name": "PhaseFlow",
+    "description": "Integrate the rotational field with deterministic RK4.",
+    "start": 70,
+    "end": 75,
+    "space": "stage"
+  },
+  {
+    "name": "Restore",
+    "description": "Restore the object to its initial state.",
+    "start": 75,
+    "end": 80,
+    "space": "stage"
+  },
+  {
+    "name": "Blink",
+    "description": "Briefly blink, then restore the original opacity.",
+    "start": 80,
+    "end": 85,
+    "space": "stage"
+  },
+  {
+    "name": "ApplyWave",
+    "description": "Send a wave through the vector outline, then restore it.",
+    "start": 85,
+    "end": 90,
+    "space": "stage"
+  },
+  {
+    "name": "Wiggle",
+    "description": "Rock the object back and forth, then settle.",
+    "start": 90,
+    "end": 95,
+    "space": "stage"
+  },
+  {
+    "name": "GrowFromCenter",
+    "description": "Grow the object outward from its center.",
+    "start": 95,
+    "end": 100,
+    "space": "stage"
+  },
+  {
+    "name": "GrowFromPoint",
+    "description": "Expand the square from the fixed point (−3, −1).",
+    "start": 100,
+    "end": 105,
+    "space": "stage"
+  },
+  {
+    "name": "GrowFromEdge",
+    "description": "Grow outward while the left edge stays anchored.",
+    "start": 105,
+    "end": 110,
+    "space": "stage"
+  },
+  {
+    "name": "SpinInFromNothing",
+    "description": "Spin and grow the square around its center.",
+    "start": 110,
+    "end": 115,
+    "space": "stage"
+  },
+  {
+    "name": "DrawBorderThenFill",
+    "description": "Finish the outline before revealing the interior fill.",
+    "start": 115,
+    "end": 120,
+    "space": "stage"
+  },
+  {
+    "name": "ShowPassingFlash",
+    "description": "A short stroke travels around the outline, then disappears.",
+    "start": 120,
+    "end": 125,
+    "space": "stage"
+  },
+  {
+    "name": "GrowArrow",
+    "description": "Grow an arrow from its stationary tail.",
+    "start": 125,
+    "end": 130,
+    "space": "stage"
+  },
+  {
+    "name": "AddTextLetterByLetter",
+    "description": "Reveal or remove whole Unicode graphemes and words.",
+    "start": 130,
+    "end": 135,
+    "space": "stage"
+  },
+  {
+    "name": "RemoveTextLetterByLetter",
+    "description": "Reveal or remove whole Unicode graphemes and words.",
+    "start": 135,
+    "end": 140,
+    "space": "stage"
+  },
+  {
+    "name": "AddTextWordByWord",
+    "description": "Reveal or remove whole Unicode graphemes and words.",
+    "start": 140,
+    "end": 145,
+    "space": "stage"
+  },
+  {
+    "name": "ShowIncreasingSubsets",
+    "description": "Reveal group children in their declared order.",
+    "start": 145,
+    "end": 150,
+    "space": "stage"
+  },
+  {
+    "name": "ShowSubmobjectsOneByOne",
+    "description": "Reveal group children in their declared order.",
+    "start": 150,
+    "end": 155,
+    "space": "stage"
+  },
+  {
+    "name": "MoveAlongPath",
+    "description": "The point follows the curved guide.",
+    "start": 155,
+    "end": 160,
+    "space": "stage"
+  },
+  {
+    "name": "Transform",
+    "description": "Morph the square into a star while keeping the source object ID.",
+    "start": 160,
+    "end": 165,
+    "space": "stage"
+  },
+  {
+    "name": "ReplacementTransform",
+    "description": "Morph into a star and transfer visibility to the destination object.",
+    "start": 165,
+    "end": 170,
+    "space": "stage"
+  },
+  {
+    "name": "AnimateParameter",
+    "description": "Animate a from 0.5 to 2: the graph and number update together.",
+    "start": 170,
+    "end": 175,
+    "space": "stage"
+  },
+  {
+    "name": "EventGroup",
+    "description": "Three circles move at the same time.",
+    "start": 175,
+    "end": 180,
+    "space": "stage"
+  },
+  {
+    "name": "Succession",
+    "description": "Each circle starts after the previous one finishes.",
+    "start": 180,
+    "end": 185,
+    "space": "stage"
+  },
+  {
+    "name": "LaggedStart",
+    "description": "The circles start at staggered times with overlap.",
+    "start": 185,
+    "end": 190,
+    "space": "stage"
+  },
+  {
+    "name": "CameraZoom",
+    "description": "Zoom the camera toward the origin; the object coordinates stay unchanged.",
+    "start": 190,
+    "end": 195,
+    "space": "zoom"
+  },
+  {
+    "name": "CameraWindow",
+    "description": "Pan and zoom to fit x ∈ [1,5], y ∈ [−2,2].",
+    "start": 195,
+    "end": 200,
+    "space": "window"
+  },
+  {
+    "name": "CameraMove",
+    "description": "Move the 3D viewpoint while preserving interactive orbit controls.",
+    "start": 200,
+    "end": 205,
+    "space": "cameramove"
+  },
+  {
+    "name": "CameraOrbit",
+    "description": "Move the 3D viewpoint while preserving interactive orbit controls.",
+    "start": 205,
+    "end": 210,
+    "space": "cameraorbit"
+  },
+  {
+    "name": "ApplySpaceMatrix",
+    "description": "Shear the whole coordinate plane, including its grid and objects.",
+    "start": 210,
+    "end": 215,
+    "space": "matrix"
+  },
+  {
+    "name": "ApplyComplexFunction",
+    "description": "Warp the plane with the complex map z → z + 0.12z².",
+    "start": 215,
+    "end": 220,
+    "space": "complex"
+  },
+  {
+    "name": "SwitchSpace",
+    "description": "Crossfade from a circle scene to a star scene. Both are ordinary 2D spaces.",
+    "start": 220,
+    "end": 225,
+    "space": "stage"
+  },
+  {
+    "name": "Easing",
+    "description": "Compare the four easing curves over the same distance and duration.",
+    "start": 225,
+    "end": 230,
+    "space": "stage"
+  }
+]

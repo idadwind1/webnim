@@ -1,5 +1,11 @@
 # Axiom Engine
 
+## Declarative JSON scenes
+
+The engine now has a document API: `compileScene`, `evaluateDocument`, and the browser-only `createPlayer`. Define spaces, geometry, live parameters and event tracks in one JSON document. Includes all four space types, Canvas/Three.js interaction, matrix/complex whole-space transformations, and simultaneous picture-in-picture spaces.
+
+See [the document API guide](docs/DECLARATIVE-SCENES.md), [Manim coverage](docs/MANIM-COVERAGE.md), and the engine-owned [fixtures](fixtures/). Existing authoring, shell and React APIs below remain compatible.
+
 A TypeScript library for interactive 2D mathematical scenes. It includes scene factories, deterministic animation tracks, expression evaluation, Canvas rendering, hit testing, and camera utilities. An optional React adapter supplies pan/zoom, object hover and KaTeX labels.
 
 ## Build and install
