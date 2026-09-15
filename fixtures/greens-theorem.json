@@ -1,0 +1,1296 @@
+{
+  "version": 1,
+  "parameters": {
+    "a": 1.5,
+    "along": 0
+  },
+  "theme": {
+    "background": "#10141d",
+    "foreground": "#dbe3ee",
+    "grid": "#283344",
+    "axes": "#79899f"
+  },
+  "spaces": [
+    {
+      "name": "green",
+      "type": "plane2d",
+      "camera": {
+        "scale": 85
+      },
+      "objects": [
+        {
+          "id": "region",
+          "type": "Polygon",
+          "points": [
+            [
+              "-a",
+              "-a"
+            ],
+            [
+              "a",
+              "-a"
+            ],
+            [
+              "a",
+              "a"
+            ],
+            [
+              "-a",
+              "a"
+            ],
+            [
+              "-a",
+              "-a"
+            ]
+          ],
+          "style": {
+            "color": "#58a6ff",
+            "fillOpacity": 0.09,
+            "strokeWidth": 3
+          },
+          "caption": "D is the square [-a,a] \u00d7 [-a,a]. Its positively oriented boundary runs counterclockwise."
+        },
+        {
+          "id": "field_0_0",
+          "type": "Arrow",
+          "from": [
+            "-2*a/2",
+            "-2*a/2"
+          ],
+          "to": [
+            "(-2/2--2*.08)*a",
+            "(-2/2+-2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_1_0",
+          "type": "Arrow",
+          "from": [
+            "-1*a/2",
+            "-2*a/2"
+          ],
+          "to": [
+            "(-1/2--2*.08)*a",
+            "(-2/2+-1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_2_0",
+          "type": "Arrow",
+          "from": [
+            "0*a/2",
+            "-2*a/2"
+          ],
+          "to": [
+            "(0/2--2*.08)*a",
+            "(-2/2+0*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_3_0",
+          "type": "Arrow",
+          "from": [
+            "1*a/2",
+            "-2*a/2"
+          ],
+          "to": [
+            "(1/2--2*.08)*a",
+            "(-2/2+1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_4_0",
+          "type": "Arrow",
+          "from": [
+            "2*a/2",
+            "-2*a/2"
+          ],
+          "to": [
+            "(2/2--2*.08)*a",
+            "(-2/2+2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_0_1",
+          "type": "Arrow",
+          "from": [
+            "-2*a/2",
+            "-1*a/2"
+          ],
+          "to": [
+            "(-2/2--1*.08)*a",
+            "(-1/2+-2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_1_1",
+          "type": "Arrow",
+          "from": [
+            "-1*a/2",
+            "-1*a/2"
+          ],
+          "to": [
+            "(-1/2--1*.08)*a",
+            "(-1/2+-1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_2_1",
+          "type": "Arrow",
+          "from": [
+            "0*a/2",
+            "-1*a/2"
+          ],
+          "to": [
+            "(0/2--1*.08)*a",
+            "(-1/2+0*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_3_1",
+          "type": "Arrow",
+          "from": [
+            "1*a/2",
+            "-1*a/2"
+          ],
+          "to": [
+            "(1/2--1*.08)*a",
+            "(-1/2+1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_4_1",
+          "type": "Arrow",
+          "from": [
+            "2*a/2",
+            "-1*a/2"
+          ],
+          "to": [
+            "(2/2--1*.08)*a",
+            "(-1/2+2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_0_2",
+          "type": "Arrow",
+          "from": [
+            "-2*a/2",
+            "0*a/2"
+          ],
+          "to": [
+            "(-2/2-0*.08)*a",
+            "(0/2+-2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_1_2",
+          "type": "Arrow",
+          "from": [
+            "-1*a/2",
+            "0*a/2"
+          ],
+          "to": [
+            "(-1/2-0*.08)*a",
+            "(0/2+-1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_3_2",
+          "type": "Arrow",
+          "from": [
+            "1*a/2",
+            "0*a/2"
+          ],
+          "to": [
+            "(1/2-0*.08)*a",
+            "(0/2+1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_4_2",
+          "type": "Arrow",
+          "from": [
+            "2*a/2",
+            "0*a/2"
+          ],
+          "to": [
+            "(2/2-0*.08)*a",
+            "(0/2+2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_0_3",
+          "type": "Arrow",
+          "from": [
+            "-2*a/2",
+            "1*a/2"
+          ],
+          "to": [
+            "(-2/2-1*.08)*a",
+            "(1/2+-2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_1_3",
+          "type": "Arrow",
+          "from": [
+            "-1*a/2",
+            "1*a/2"
+          ],
+          "to": [
+            "(-1/2-1*.08)*a",
+            "(1/2+-1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_2_3",
+          "type": "Arrow",
+          "from": [
+            "0*a/2",
+            "1*a/2"
+          ],
+          "to": [
+            "(0/2-1*.08)*a",
+            "(1/2+0*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_3_3",
+          "type": "Arrow",
+          "from": [
+            "1*a/2",
+            "1*a/2"
+          ],
+          "to": [
+            "(1/2-1*.08)*a",
+            "(1/2+1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_4_3",
+          "type": "Arrow",
+          "from": [
+            "2*a/2",
+            "1*a/2"
+          ],
+          "to": [
+            "(2/2-1*.08)*a",
+            "(1/2+2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_0_4",
+          "type": "Arrow",
+          "from": [
+            "-2*a/2",
+            "2*a/2"
+          ],
+          "to": [
+            "(-2/2-2*.08)*a",
+            "(2/2+-2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_1_4",
+          "type": "Arrow",
+          "from": [
+            "-1*a/2",
+            "2*a/2"
+          ],
+          "to": [
+            "(-1/2-2*.08)*a",
+            "(2/2+-1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_2_4",
+          "type": "Arrow",
+          "from": [
+            "0*a/2",
+            "2*a/2"
+          ],
+          "to": [
+            "(0/2-2*.08)*a",
+            "(2/2+0*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_3_4",
+          "type": "Arrow",
+          "from": [
+            "1*a/2",
+            "2*a/2"
+          ],
+          "to": [
+            "(1/2-2*.08)*a",
+            "(2/2+1*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "field_4_4",
+          "type": "Arrow",
+          "from": [
+            "2*a/2",
+            "2*a/2"
+          ],
+          "to": [
+            "(2/2-2*.08)*a",
+            "(2/2+2*.08)*a"
+          ],
+          "style": {
+            "color": "#75dda5",
+            "opacity": 0.65
+          },
+          "caption": "F(x,y) = (-y/2, x/2). Arrows show the direction of counterclockwise flow; lengths are scaled for display."
+        },
+        {
+          "id": "cell_0",
+          "type": "Polygon",
+          "points": [
+            [
+              "-1*a",
+              "-1*a"
+            ],
+            [
+              "0*a",
+              "-1*a"
+            ],
+            [
+              "0*a",
+              "0*a"
+            ],
+            [
+              "-1*a",
+              "0*a"
+            ]
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "fillOpacity": 0.06,
+            "strokeWidth": 1
+          },
+          "caption": "Each small square has area a\u00b2. Its counterclockwise circulation is also a\u00b2."
+        },
+        {
+          "id": "edge_0_0",
+          "type": "Arrow",
+          "from": [
+            "(-1+1*.25-0*.035)*a",
+            "(-1+0*.25+1*.035)*a"
+          ],
+          "to": [
+            "(-1+1*.75-0*.035)*a",
+            "(-1+0*.75+1*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_0_1",
+          "type": "Arrow",
+          "from": [
+            "(0+0*.25-1*.035)*a",
+            "(-1+1*.25+0*.035)*a"
+          ],
+          "to": [
+            "(0+0*.75-1*.035)*a",
+            "(-1+1*.75+0*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_0_2",
+          "type": "Arrow",
+          "from": [
+            "(0+-1*.25-0*.035)*a",
+            "(0+0*.25+-1*.035)*a"
+          ],
+          "to": [
+            "(0+-1*.75-0*.035)*a",
+            "(0+0*.75+-1*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_0_3",
+          "type": "Arrow",
+          "from": [
+            "(-1+0*.25--1*.035)*a",
+            "(0+-1*.25+0*.035)*a"
+          ],
+          "to": [
+            "(-1+0*.75--1*.035)*a",
+            "(0+-1*.75+0*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "cell_1",
+          "type": "Polygon",
+          "points": [
+            [
+              "0*a",
+              "-1*a"
+            ],
+            [
+              "1*a",
+              "-1*a"
+            ],
+            [
+              "1*a",
+              "0*a"
+            ],
+            [
+              "0*a",
+              "0*a"
+            ]
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "fillOpacity": 0.06,
+            "strokeWidth": 1
+          },
+          "caption": "Each small square has area a\u00b2. Its counterclockwise circulation is also a\u00b2."
+        },
+        {
+          "id": "edge_1_0",
+          "type": "Arrow",
+          "from": [
+            "(0+1*.25-0*.035)*a",
+            "(-1+0*.25+1*.035)*a"
+          ],
+          "to": [
+            "(0+1*.75-0*.035)*a",
+            "(-1+0*.75+1*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_1_1",
+          "type": "Arrow",
+          "from": [
+            "(1+0*.25-1*.035)*a",
+            "(-1+1*.25+0*.035)*a"
+          ],
+          "to": [
+            "(1+0*.75-1*.035)*a",
+            "(-1+1*.75+0*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_1_2",
+          "type": "Arrow",
+          "from": [
+            "(1+-1*.25-0*.035)*a",
+            "(0+0*.25+-1*.035)*a"
+          ],
+          "to": [
+            "(1+-1*.75-0*.035)*a",
+            "(0+0*.75+-1*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_1_3",
+          "type": "Arrow",
+          "from": [
+            "(0+0*.25--1*.035)*a",
+            "(0+-1*.25+0*.035)*a"
+          ],
+          "to": [
+            "(0+0*.75--1*.035)*a",
+            "(0+-1*.75+0*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "cell_2",
+          "type": "Polygon",
+          "points": [
+            [
+              "-1*a",
+              "0*a"
+            ],
+            [
+              "0*a",
+              "0*a"
+            ],
+            [
+              "0*a",
+              "1*a"
+            ],
+            [
+              "-1*a",
+              "1*a"
+            ]
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "fillOpacity": 0.06,
+            "strokeWidth": 1
+          },
+          "caption": "Each small square has area a\u00b2. Its counterclockwise circulation is also a\u00b2."
+        },
+        {
+          "id": "edge_2_0",
+          "type": "Arrow",
+          "from": [
+            "(-1+1*.25-0*.035)*a",
+            "(0+0*.25+1*.035)*a"
+          ],
+          "to": [
+            "(-1+1*.75-0*.035)*a",
+            "(0+0*.75+1*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_2_1",
+          "type": "Arrow",
+          "from": [
+            "(0+0*.25-1*.035)*a",
+            "(0+1*.25+0*.035)*a"
+          ],
+          "to": [
+            "(0+0*.75-1*.035)*a",
+            "(0+1*.75+0*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_2_2",
+          "type": "Arrow",
+          "from": [
+            "(0+-1*.25-0*.035)*a",
+            "(1+0*.25+-1*.035)*a"
+          ],
+          "to": [
+            "(0+-1*.75-0*.035)*a",
+            "(1+0*.75+-1*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_2_3",
+          "type": "Arrow",
+          "from": [
+            "(-1+0*.25--1*.035)*a",
+            "(1+-1*.25+0*.035)*a"
+          ],
+          "to": [
+            "(-1+0*.75--1*.035)*a",
+            "(1+-1*.75+0*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "cell_3",
+          "type": "Polygon",
+          "points": [
+            [
+              "0*a",
+              "0*a"
+            ],
+            [
+              "1*a",
+              "0*a"
+            ],
+            [
+              "1*a",
+              "1*a"
+            ],
+            [
+              "0*a",
+              "1*a"
+            ]
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "fillOpacity": 0.06,
+            "strokeWidth": 1
+          },
+          "caption": "Each small square has area a\u00b2. Its counterclockwise circulation is also a\u00b2."
+        },
+        {
+          "id": "edge_3_0",
+          "type": "Arrow",
+          "from": [
+            "(0+1*.25-0*.035)*a",
+            "(0+0*.25+1*.035)*a"
+          ],
+          "to": [
+            "(0+1*.75-0*.035)*a",
+            "(0+0*.75+1*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_3_1",
+          "type": "Arrow",
+          "from": [
+            "(1+0*.25-1*.035)*a",
+            "(0+1*.25+0*.035)*a"
+          ],
+          "to": [
+            "(1+0*.75-1*.035)*a",
+            "(0+1*.75+0*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_3_2",
+          "type": "Arrow",
+          "from": [
+            "(1+-1*.25-0*.035)*a",
+            "(1+0*.25+-1*.035)*a"
+          ],
+          "to": [
+            "(1+-1*.75-0*.035)*a",
+            "(1+0*.75+-1*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "edge_3_3",
+          "type": "Arrow",
+          "from": [
+            "(0+0*.25--1*.035)*a",
+            "(1+-1*.25+0*.035)*a"
+          ],
+          "to": [
+            "(0+0*.75--1*.035)*a",
+            "(1+-1*.75+0*.035)*a"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "strokeWidth": 2
+          },
+          "caption": "Orient every small boundary counterclockwise. Shared edges occur twice, in opposite directions, so their line integrals cancel."
+        },
+        {
+          "id": "tracer",
+          "type": "PointOnCurve",
+          "curve": "green.region",
+          "parameter": "along",
+          "drag": {
+            "parameter": "along",
+            "min": 0,
+            "max": 1
+          },
+          "style": {
+            "color": "#f4b66b",
+            "pointSize": 6
+          },
+          "caption": "Drag along the counterclockwise boundary. This traces the line integral \u222e P dx + Q dy."
+        },
+        {
+          "id": "size",
+          "type": "Point",
+          "at": [
+            "a",
+            0
+          ],
+          "drag": {
+            "parameter": "a",
+            "coordinate": 0,
+            "min": 0.6,
+            "max": 3
+          },
+          "style": {
+            "color": "#58a6ff",
+            "pointSize": 7
+          },
+          "caption": "Drag horizontally to resize the square. Both integrals stay equal to 4a\u00b2."
+        },
+        {
+          "id": "origin",
+          "type": "Point",
+          "at": [
+            0,
+            0
+          ],
+          "style": {
+            "color": "#c4cbd8",
+            "pointSize": 3
+          },
+          "caption": "At the origin the vector field is zero, but the scalar curl is still 1."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "FadeIn",
+      "object": "green.field_0_0",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_1_0",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_2_0",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_3_0",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_4_0",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_0_1",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_1_1",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_2_1",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_3_1",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_4_1",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_0_2",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_1_2",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_3_2",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_4_2",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_0_3",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_1_3",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_2_3",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_3_3",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_4_3",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_0_4",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_1_4",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_2_4",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_3_4",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.field_4_4",
+      "start": 3,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.cell_0",
+      "start": 10,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.cell_0",
+      "start": 22,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_0_0",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_0_0",
+      "start": 23,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_0_1",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_0_1",
+      "start": 18,
+      "duration": 2
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_0_2",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_0_2",
+      "start": 18,
+      "duration": 2
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_0_3",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_0_3",
+      "start": 23,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.cell_1",
+      "start": 10,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.cell_1",
+      "start": 22,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_1_0",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_1_0",
+      "start": 23,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_1_1",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_1_1",
+      "start": 23,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_1_2",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_1_2",
+      "start": 18,
+      "duration": 2
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_1_3",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_1_3",
+      "start": 18,
+      "duration": 2
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.cell_2",
+      "start": 10,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.cell_2",
+      "start": 22,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_2_0",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_2_0",
+      "start": 18,
+      "duration": 2
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_2_1",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_2_1",
+      "start": 18,
+      "duration": 2
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_2_2",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_2_2",
+      "start": 23,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_2_3",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_2_3",
+      "start": 23,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.cell_3",
+      "start": 10,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.cell_3",
+      "start": 22,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_3_0",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_3_0",
+      "start": 18,
+      "duration": 2
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_3_1",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_3_1",
+      "start": 23,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_3_2",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_3_2",
+      "start": 23,
+      "duration": 1
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.edge_3_3",
+      "start": 11,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "green.edge_3_3",
+      "start": 18,
+      "duration": 2
+    },
+    {
+      "type": "FadeIn",
+      "object": "green.tracer",
+      "start": 4,
+      "duration": 0.5
+    },
+    {
+      "type": "AnimateParameter",
+      "parameter": "along",
+      "to": 1,
+      "start": 4,
+      "duration": 6
+    }
+  ],
+  "duration": 30
+}
