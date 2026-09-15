@@ -18,15 +18,39 @@ const playbackButtons = ["play", "pause", "seek", "reset", "tests"].map((id) =>
 playbackButtons.forEach((button) => {
   button.disabled = true;
 });
+type DemoChapter = { name: string; start: number; description: string };
+const demoChapters: Record<string, DemoChapter[]> = {
+  four: [
+    {name: "Number line", start: 0, description: "A point moves along the number line as its position changes."},
+    {name: "Cartesian plane", start: 2.5, description: "The curve changes amplitude while a point travels along it. Insets show the other spaces."},
+    {name: "Polar plane", start: 5.5, description: "The rose curve uses radius and angle to trace its petals."},
+    {name: "3D space", start: 8, description: "The surface rotates in three dimensions. Drag to explore it from another angle."},
+    {name: "Return to plane", start: 12, description: "The Cartesian view returns with its number-line and 3D insets."},
+  ],
+  mapping: [
+    {name: "Original plane", start: 0, description: "Start with the original grid and geometry before applying either transformation."},
+    {name: "Shear", start: 1, description: "The matrix maps (x, y) to (x + 0.5y, y), shearing the grid and its objects together."},
+    {name: "Complex transformation", start: 4, description: "The mapping z² / 3 bends the sheared plane into a nonlinear grid. Press Play to watch the transformation."},
+  ],
+  pip: [
+    {name: "Linked views", start: 0, description: "The main view and insets share live parameters. Drag a point to explore their connection."},
+    {name: "All insets", start: 2.5, description: "Each inset has its own camera while the views share one animation clock."},
+  ],
+};
 let lesson = "";
 let animationStop: number | null = null;
 const timeline = $<HTMLInputElement>("timeline");
 const describe = () => {
   if (!player) return;
-  const f = player.getFrame(), active = f.spaces.find(s => s.name === f.activeSpace)!;
+  const f = player.getFrame();
   timeline.value = String(f.time);
   $<HTMLInputElement>("time").value = String(Number(f.time.toFixed(2)));
-  $("view-state").textContent = `${f.time.toFixed(1)} s · ${active.type === "space3d" ? "3D · orbit" : active.type === "axis1d" ? "1D · number line" : "2D · pan and zoom"}`;
+  $("view-state").textContent = `${f.time.toFixed(1)} s`;
+  const stages = demoChapters[lesson];
+  if (stages) {
+    const chapter = stages.findLast(c => c.start <= f.time) ?? stages[0];
+    $("explanation").textContent = chapter.description;
+  }
   if (lesson === "animations") {
     const index = Math.max(0, animationChapters.findLastIndex(c => c.start <= f.time));
     const chapter = animationChapters[index];
@@ -35,7 +59,7 @@ const describe = () => {
     if (select) select.value = String(index);
   }
   if (lesson === "additions") {
-    $("explanation").textContent = "Drag the inset point to move the curved arrow. Choose Fields for vector arrows, streamlines and an implicit circle, or Tracing to explore the point’s recent path by playing or seeking. The 3D vector field fills a volume with F(x,y,z) = (−y, x, 0.6 + 0.2z); drag empty space to orbit and scroll to zoom.";
+    $("explanation").textContent = "Drag the inset point to move the curved arrow. Choose Fields for vector arrows, streamlines and an implicit circle, or Tracing to explore the point’s recent path by playing or seeking. The 3D vector field fills a volume with F(x,y,z) = (−y, x, 0.6 + 0.2z); drag empty space to orbit and scroll to zoom. Later chapters show matrices, probability partitions, charts, directed graphs, polyhedra and bounds helpers.";
   }
   if (lesson === "greens") {
     const a = f.parameters.a;
@@ -58,7 +82,8 @@ const load = async (doc: unknown, demo = "") => {
     player = await createPlayer(container, { document: doc, onEvent: events });
   lesson = demo;
   animationStop = null;
-  $("lesson").hidden = !demo;
+  $("lesson").hidden = false;
+  $("explanation").textContent = "";
   timeline.max = String(player.getFrame().duration);
   const chapters = $("chapters");
   chapters.replaceChildren();
@@ -71,7 +96,7 @@ const load = async (doc: unknown, demo = "") => {
     label.append(select); chapters.append(label);
     const button = document.createElement("button"); button.textContent = "Replay animation"; button.onclick = replay; chapters.append(button);
   }
-  const steps: [string, number][] = demo === "greens" ? [["Region",0],["Boundary circulation",4],["Four cells",12],["Cancel shared edges",18],["Green’s theorem",24]] : demo === "additions" ? [["Geometry",0],["Fields",7],["Tracing",16],["3D vector field",21]] : [];
+  const steps: [string, number][] = demo === "greens" ? [["Region",0],["Boundary circulation",4],["Four cells",12],["Cancel shared edges",18],["Green’s theorem",24]] : demo === "additions" ? [["Geometry",0],["Fields",7],["Tracing",16],["3D vector field",21],["Matrices",29],["Charts and graphs",38],["Polyhedra",47],["More geometry",56],["Boolean paths",65]] : (demoChapters[demo] ?? []).map(c => [c.name, c.start]);
   for (const [label,time] of steps) {
     const button = document.createElement("button");
     button.textContent = label;
@@ -95,9 +120,9 @@ const safely = (fn: () => unknown) => async () => {
     }
   }
 };
-$("four").onclick = safely(() => load(fixtures[0]));
-$("mapping").onclick = safely(() => load(fixtures[1]));
-$("pip").onclick = safely(() => load(fixtures[2]));
+$("four").onclick = safely(() => load(fixtures[0], "four"));
+$("mapping").onclick = safely(() => load(fixtures[1], "mapping"));
+$("pip").onclick = safely(() => load(fixtures[2], "pip"));
 $("animations").onclick = safely(() => load(fixtures[4], "animations"));
 $("greens").onclick = safely(() => load(fixtures[3], "greens"));
 $("additions").onclick = safely(() => load(fixtures[5], "additions"));
@@ -575,12 +600,12 @@ $("tests").onclick = safely(async () => {
     document: fixtures[0],
     onEvent: events,
   });
-  lesson = "";
-  $("lesson").hidden = true;
+  lesson = "four";
+  $("lesson").hidden = false;
   timeline.max = String(player.getFrame().duration);
   describe();
   status.textContent =
     `PASS: ${passed.length} browser checks\n` + passed.join("\n");
 });
-const initial = location.hash === "#additions" ? 5 : location.hash === "#animations" ? 4 : location.hash === "#greens" ? 3 : 0;
-await safely(() => load(fixtures[initial], initial === 5 ? "additions" : initial === 4 ? "animations" : initial === 3 ? "greens" : ""))();
+const initial = location.hash === "#additions" ? 5 : location.hash === "#animations" ? 4 : location.hash === "#greens" ? 3 : location.hash === "#mapping" ? 1 : location.hash === "#pip" ? 2 : 0;
+await safely(() => load(fixtures[initial], initial === 5 ? "additions" : initial === 4 ? "animations" : initial === 3 ? "greens" : initial === 1 ? "mapping" : initial === 2 ? "pip" : "four"))();
