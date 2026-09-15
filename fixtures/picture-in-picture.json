@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "parameters": {
+    "a": 0
+  },
+  "spaces": [
+    {
+      "name": "main",
+      "type": "plane2d",
+      "objects": [
+        {
+          "id": "wave",
+          "type": "FunctionGraph",
+          "expression": "sin(x-t)",
+          "domain": [
+            -8,
+            8
+          ]
+        },
+        {
+          "type": "PictureInPicture",
+          "id": "position",
+          "space": "axis",
+          "x": 16,
+          "y": 16,
+          "width": 240,
+          "height": 140
+        },
+        {
+          "type": "PictureInPicture",
+          "id": "orbit",
+          "space": "solid",
+          "x": 272,
+          "y": 16,
+          "width": 240,
+          "height": 180
+        },
+        {
+          "type": "PictureInPicture",
+          "id": "secondPosition",
+          "space": "axis",
+          "x": 16,
+          "y": 172,
+          "width": 240,
+          "height": 140
+        }
+      ]
+    },
+    {
+      "name": "axis",
+      "type": "axis1d",
+      "objects": [
+        {
+          "id": "point",
+          "type": "Point",
+          "at": [
+            "a"
+          ],
+          "drag": {
+            "parameter": "a",
+            "min": -2,
+            "max": 2
+          },
+          "caption": "Drag me. Both mini views share this parameter."
+        }
+      ]
+    },
+    {
+      "name": "solid",
+      "type": "space3d",
+      "objects": [
+        {
+          "id": "cube",
+          "type": "Cube",
+          "caption": "Orbit this mini space independently."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "FadeIn",
+      "object": "main.position",
+      "start": 0,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "main.position",
+      "start": 11.5,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeIn",
+      "object": "main.orbit",
+      "start": 1,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "main.orbit",
+      "start": 10.5,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeIn",
+      "object": "main.secondPosition",
+      "start": 2,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "main.secondPosition",
+      "start": 11.5,
+      "duration": 0.5
+    },
+    {
+      "type": "AnimateParameter",
+      "parameter": "a",
+      "to": 2,
+      "duration": 10
+    },
+    {
+      "type": "Rotate",
+      "object": "solid.cube",
+      "angle": 6.283185307179586,
+      "duration": 12
+    }
+  ],
+  "duration": 14
+}

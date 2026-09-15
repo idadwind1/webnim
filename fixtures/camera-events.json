@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "spaces": [
+    {
+      "name": "plane",
+      "type": "plane2d",
+      "objects": [
+        {
+          "id": "curve",
+          "type": "FunctionGraph",
+          "expression": "sin(x)",
+          "domain": [-10, 10]
+        }
+      ]
+    }
+  ],
+  "events": [
+    { "type": "CameraZoom", "space": "plane", "factor": 100, "duration": 3 },
+    {
+      "type": "CameraWindow",
+      "space": "plane",
+      "x": [-5, 5],
+      "y": [-2, 2],
+      "start": 3,
+      "duration": 2
+    }
+  ]
+}

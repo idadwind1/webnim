@@ -1,0 +1,345 @@
+{
+  "version": 1,
+  "parameters": {
+    "amplitude": 1,
+    "along": 0.35,
+    "position": 0
+  },
+  "theme": {
+    "background": "#10141d",
+    "objectColors": [
+      "#58a6ff",
+      "#75dda5",
+      "#f4b66b"
+    ]
+  },
+  "spaces": [
+    {
+      "name": "line",
+      "type": "axis1d",
+      "objects": [
+        {
+          "id": "point",
+          "type": "Point",
+          "at": [
+            "position"
+          ],
+          "drag": {
+            "parameter": "position",
+            "min": -4,
+            "max": 4
+          },
+          "caption": "Drag this point along the number line. It also controls the green point and arrow in the plane."
+        },
+        {
+          "id": "value",
+          "type": "DecimalNumber",
+          "value": "position",
+          "position": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "plane",
+      "type": "plane2d",
+      "objects": [
+        {
+          "id": "curve",
+          "type": "FunctionGraph",
+          "expression": "amplitude * sin(x)",
+          "domain": [
+            -5,
+            5
+          ],
+          "style": {
+            "color": "#58a6ff"
+          },
+          "caption": "y = amplitude \u00d7 sin(x). The amplitude controls the height of the wave."
+        },
+        {
+          "id": "point",
+          "type": "PointOnCurve",
+          "curve": "plane.curve",
+          "parameter": "along",
+          "drag": {
+            "parameter": "along",
+            "min": 0,
+            "max": 1
+          },
+          "style": {
+            "color": "#f4b66b"
+          },
+          "caption": "Drag this point to explore the curve."
+        },
+        {
+          "id": "tangent",
+          "type": "Tangent",
+          "curve": "plane.curve",
+          "parameter": "along",
+          "length": 3,
+          "style": {
+            "color": "#75dda5"
+          },
+          "caption": "The tangent follows the curve at the highlighted point."
+        },
+        {
+          "id": "formula",
+          "type": "MathTex",
+          "text": "y = a\\sin(x)",
+          "position": [
+            0,
+            3
+          ]
+        },
+        {
+          "id": "linkedArrow",
+          "type": "Arrow",
+          "from": [0, 0],
+          "to": ["line.point.x", "amplitude * sin(line.point.x)"],
+          "style": { "color": "#75dda5" },
+          "caption": "This arrow follows line.point.x from the number-line space."
+        },
+        {
+          "id": "linkedPoint",
+          "type": "Point",
+          "at": ["line.point.x", "amplitude * sin(line.point.x)"],
+          "style": { "color": "#75dda5" },
+          "caption": "My x coordinate comes from line.point, even when its space is hidden."
+        },
+        {
+          "type": "PictureInPicture",
+          "id": "lineInset",
+          "space": "line",
+          "x": 16,
+          "y": 16,
+          "width": 280,
+          "height": 130
+        },
+        {
+          "type": "PictureInPicture",
+          "id": "solidInset",
+          "space": "solid",
+          "x": 312,
+          "y": 16,
+          "width": 240,
+          "height": 180
+        }
+      ]
+    },
+    {
+      "name": "polar",
+      "type": "polar2d",
+      "objects": [
+        {
+          "id": "rose",
+          "type": "PolarGraph",
+          "expression": "2 * cos(3 * theta)",
+          "domain": [
+            0,
+            6.283185307179586
+          ]
+        },
+        {
+          "id": "native",
+          "type": "Point",
+          "at": [
+            2,
+            1.5707963267948966
+          ]
+        }
+      ]
+    },
+    {
+      "name": "solid",
+      "type": "space3d",
+      "camera": {
+        "position": [
+          7,
+          -9,
+          7
+        ]
+      },
+      "axes": [
+        "x",
+        "y",
+        "z"
+      ],
+      "objects": [
+        {
+          "id": "surface",
+          "type": "Surface",
+          "expressions": [
+            "u",
+            "v",
+            "0.25*(u^2+v^2)"
+          ],
+          "uRange": [
+            -2,
+            2
+          ],
+          "vRange": [
+            -2,
+            2
+          ],
+          "style": {
+            "color": "#58a6ff",
+            "opacity": 0.7
+          }
+        },
+        {
+          "id": "helix",
+          "type": "ParametricCurve",
+          "expressions": [
+            "cos(u)",
+            "sin(u)",
+            "u / 3"
+          ],
+          "domain": [
+            0,
+            12.566370614359172
+          ],
+          "style": {
+            "color": "#f4b66b"
+          }
+        },
+        {
+          "id": "ball",
+          "type": "Sphere",
+          "radius": 0.4,
+          "position": [
+            2,
+            0,
+            1
+          ],
+          "caption": "A sphere with radius 0.4. Orbit the scene to view it from another angle."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "AnimateParameter",
+      "parameter": "position",
+      "to": 2,
+      "start": 0,
+      "duration": 2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "plane",
+      "start": 2,
+      "duration": 0.5,
+      "transition": "fade"
+    },
+    {
+      "type": "Create",
+      "object": "plane.curve",
+      "start": 1,
+      "duration": 2
+    },
+    {
+      "type": "AnimateParameter",
+      "parameter": "amplitude",
+      "to": 2,
+      "start": 3,
+      "duration": 2
+    },
+    {
+      "type": "AnimateParameter",
+      "parameter": "along",
+      "to": 0.8,
+      "start": 3,
+      "duration": 2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "polar",
+      "start": 5,
+      "duration": 0.5,
+      "transition": "fade"
+    },
+    {
+      "type": "Create",
+      "object": "polar.rose",
+      "start": 4,
+      "duration": 2
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "solid",
+      "start": 7,
+      "duration": 1,
+      "transition": "fade"
+    },
+    {
+      "type": "Rotate",
+      "object": "solid.surface",
+      "angle": 3.141592653589793,
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "start": 7,
+      "duration": 3
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "plane",
+      "start": 11,
+      "duration": 1,
+      "transition": "fade"
+    },
+    {
+      "type": "FadeIn",
+      "object": "plane.lineInset",
+      "start": 2.5,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeIn",
+      "object": "plane.solidInset",
+      "start": 3,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "plane.lineInset",
+      "start": 4.5,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "plane.solidInset",
+      "start": 4.5,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeIn",
+      "object": "plane.lineInset",
+      "start": 11.5,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeIn",
+      "object": "plane.solidInset",
+      "start": 11.5,
+      "duration": 0.5
+    },
+    {
+      "type": "FadeOut",
+      "object": "plane.lineInset",
+      "start": 13,
+      "duration": 1
+    },
+    {
+      "type": "FadeOut",
+      "object": "plane.solidInset",
+      "start": 13,
+      "duration": 1
+    }
+  ],
+  "duration": 14
+}

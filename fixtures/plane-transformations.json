@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "spaces": [
+    {
+      "name": "plane",
+      "type": "plane2d",
+      "camera": { "scale": 85 },
+      "axes": ["x", "y"],
+      "objects": [
+        {
+          "id": "circle",
+          "type": "Circle",
+          "radius": 1,
+          "position": [1, 0],
+          "style": { "color": "#58a6ff" }
+        },
+        {
+          "id": "vector",
+          "type": "Arrow",
+          "from": [0, 0],
+          "to": [1, 1],
+          "style": { "color": "#75dda5" }
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "ApplySpaceMatrix",
+      "space": "plane",
+      "matrix": [
+        [1, 0.5],
+        [0, 1]
+      ],
+      "start": 1,
+      "duration": 2
+    },
+    {
+      "type": "ApplyComplexFunction",
+      "space": "plane",
+      "expression": "z^2 / 3",
+      "start": 4,
+      "duration": 3
+    }
+  ],
+  "duration": 8
+}

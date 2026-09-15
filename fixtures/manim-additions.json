@@ -1,0 +1,339 @@
+{
+  "version": 1,
+  "parameters": {
+    "height": 0
+  },
+  "duration": 28,
+  "spaces": [
+    {
+      "name": "helpers",
+      "type": "plane2d",
+      "grid": false,
+      "axes": false,
+      "objects": [
+        {
+          "id": "curve",
+          "type": "CurvedDoubleArrow",
+          "from": [
+            -4,
+            2
+          ],
+          "to": [
+            -1,
+            "2 + controls.handle.x / 2"
+          ],
+          "angle": 1.2,
+          "caption": "CurvedDoubleArrow: its endpoint follows a point in another space."
+        },
+        {
+          "id": "double",
+          "type": "DoubleArrow",
+          "from": [
+            1,
+            2
+          ],
+          "to": [
+            4,
+            2
+          ],
+          "caption": "DoubleArrow"
+        },
+        {
+          "id": "dash",
+          "type": "DashedLine",
+          "from": [
+            -4,
+            0
+          ],
+          "to": [
+            -1,
+            0
+          ],
+          "dashLength": 0.2,
+          "caption": "DashedLine: world-space dashes and pickable strokes."
+        },
+        {
+          "id": "round",
+          "type": "RoundedRectangle",
+          "width": 3,
+          "height": 1.2,
+          "cornerRadius": 0.3,
+          "position": [
+            2.5,
+            0
+          ],
+          "caption": "RoundedRectangle"
+        },
+        {
+          "id": "triangle",
+          "type": "Triangle",
+          "radius": 0.8,
+          "position": [
+            -3,
+            -2
+          ],
+          "caption": "Triangle"
+        },
+        {
+          "id": "angle",
+          "type": "Angle",
+          "from": [
+            0,
+            -2
+          ],
+          "vertex": [
+            -1,
+            -2
+          ],
+          "to": [
+            -1,
+            -1
+          ],
+          "radius": 0.7,
+          "caption": "Angle: quarter circle between two rays."
+        },
+        {
+          "id": "right",
+          "type": "RightAngle",
+          "from": [
+            3,
+            -2
+          ],
+          "vertex": [
+            2,
+            -2
+          ],
+          "to": [
+            2,
+            -1
+          ],
+          "size": 0.5,
+          "caption": "RightAngle"
+        },
+        {
+          "id": "inset",
+          "type": "PictureInPicture",
+          "space": "controls",
+          "x": 16,
+          "y": 16,
+          "width": 200,
+          "height": 90
+        }
+      ],
+      "camera": {
+        "scale": 45
+      }
+    },
+    {
+      "name": "controls",
+      "type": "axis1d",
+      "objects": [
+        {
+          "id": "handle",
+          "type": "Point",
+          "at": [
+            "height"
+          ],
+          "drag": {
+            "parameter": "height",
+            "min": -2,
+            "max": 2
+          },
+          "caption": "Drag me to move the curved arrow endpoint."
+        }
+      ]
+    },
+    {
+      "name": "fields",
+      "type": "plane2d",
+      "objects": [
+        {
+          "id": "title",
+          "type": "Text",
+          "text": "Vector field, streamlines and implicit circle",
+          "position": [
+            0,
+            3.4
+          ],
+          "style": {
+            "fontSize": 18
+          }
+        },
+        {
+          "id": "field",
+          "type": "ArrowVectorField",
+          "expressions": [
+            "-y",
+            "x"
+          ],
+          "xRange": [
+            -3,
+            3
+          ],
+          "yRange": [
+            -3,
+            3
+          ],
+          "spacing": 1,
+          "style": {
+            "color": "#58a6ff",
+            "opacity": 0.7
+          }
+        },
+        {
+          "id": "flow",
+          "type": "StreamLines",
+          "expressions": [
+            "-y",
+            "x"
+          ],
+          "seeds": [
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "step": 0.025,
+          "steps": 252,
+          "style": {
+            "color": "#75dda5"
+          }
+        },
+        {
+          "id": "implicit",
+          "type": "ImplicitFunction",
+          "expression": "x*x+y*y-6.25",
+          "xRange": [
+            -3,
+            3
+          ],
+          "yRange": [
+            -3,
+            3
+          ],
+          "resolution": 96,
+          "style": {
+            "color": "#f4b66b"
+          }
+        }
+      ]
+    },
+    {
+      "name": "tracing",
+      "type": "plane2d",
+      "objects": [
+        {
+          "id": "title",
+          "type": "Text",
+          "text": "TracedPath \u2014 seek backward or forward",
+          "position": [
+            0,
+            3.2
+          ],
+          "style": {
+            "fontSize": 18
+          }
+        },
+        {
+          "id": "trail",
+          "type": "TracedPath",
+          "point": "tracing.point",
+          "start": 12,
+          "duration": 4,
+          "samples": 256,
+          "style": {
+            "color": "#75dda5",
+            "strokeWidth": 3
+          }
+        },
+        {
+          "id": "point",
+          "type": "Point",
+          "at": [
+            "2*cos(t)",
+            "2*sin(2*t)"
+          ],
+          "style": {
+            "color": "#f4b66b",
+            "pointSize": 7
+          }
+        }
+      ]
+    },
+    {
+      "name": "field3d",
+      "type": "space3d",
+      "camera": {
+        "position": [
+          7,
+          -9,
+          6
+        ],
+        "center": [
+          0,
+          0,
+          0
+        ],
+        "scale": 60
+      },
+      "objects": [
+        {
+          "id": "field",
+          "type": "ArrowVectorField",
+          "expressions": [
+            "-y",
+            "x",
+            "0.6 + 0.2*z"
+          ],
+          "xRange": [
+            -2,
+            2
+          ],
+          "yRange": [
+            -2,
+            2
+          ],
+          "zRange": [
+            -2,
+            2
+          ],
+          "spacing": 1,
+          "lengthScale": 0.5,
+          "maxLength": 0.7,
+          "style": {
+            "color": "#58a6ff",
+            "opacity": 0.85
+          },
+          "caption": "F(x,y,z) = (-y, x, 0.6 + 0.2z). Drag empty space to orbit; scroll to zoom."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "SwitchSpace",
+      "space": "fields",
+      "start": 6,
+      "transition": "fade",
+      "duration": 0.5
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "tracing",
+      "start": 12,
+      "transition": "fade",
+      "duration": 0.5
+    },
+    {
+      "type": "SwitchSpace",
+      "space": "field3d",
+      "start": 20,
+      "transition": "fade",
+      "duration": 0.5
+    }
+  ]
+}
