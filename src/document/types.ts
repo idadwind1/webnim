@@ -31,17 +31,56 @@ export interface ObjectBase {
   position?: Coordinate;
   style?: ObjectStyle;
 }
-export interface TableSpecs { entries: (string | number)[][]; cellWidth?: number; cellHeight?: number; decimals?: number }
-export interface GraphSpecs { vertices: string[]; edges: [string,string][]; layout?: "circle" | "line"; radius?: number; positions?: Record<string,[number,number]>; labels?: boolean }
+export interface MatrixSpecs {
+  entries: (string | number)[][];
+  cellWidth?: number;
+  cellHeight?: number;
+  decimals?: number;
+}
+export interface GraphSpecs {
+  vertices: string[];
+  edges: [string, string][];
+  layout?: "circle" | "line";
+  radius?: number;
+  positions?: Record<string, [number, number]>;
+  labels?: boolean;
+}
 export interface ObjectSpecs {
-  Table: TableSpecs;
-  MathTable: TableSpecs;
-  DecimalTable: TableSpecs;
-  Matrix: TableSpecs;
-  DecimalMatrix: TableSpecs;
-  IntegerMatrix: TableSpecs;
-  BarChart: { values: Scalar[]; labels?: string[]; barWidth?: number; gap?: number };
-  SampleSpace: { probabilities: number[]; labels?: string[]; width?: number; height?: number };
+  ArcPolygon: { points: Coordinate[]; angles?: Scalar[] };
+  AnimatedBoundary: {
+    target: string;
+    period?: number;
+    colors?: string[];
+    timeWidth?: number;
+  };
+  Union: { operands: string[] };
+  Difference: { operands: string[] };
+  Intersection: { operands: string[] };
+  Exclusion: { operands: string[] };
+  ImageMobject: { source: string; width?: Scalar; height?: Scalar };
+  ImageSequence: {
+    sources: string[];
+    fps?: number;
+    start?: number;
+    loop?: boolean;
+    width?: Scalar;
+    height?: Scalar;
+  };
+  Matrix: MatrixSpecs;
+  DecimalMatrix: MatrixSpecs;
+  IntegerMatrix: MatrixSpecs;
+  BarChart: {
+    values: Scalar[];
+    labels?: string[];
+    barWidth?: number;
+    gap?: number;
+  };
+  SampleSpace: {
+    probabilities: number[];
+    labels?: string[];
+    width?: number;
+    height?: number;
+  };
   Graph: GraphSpecs;
   DiGraph: GraphSpecs;
   PictureInPicture: PictureInPictureSpecs;
@@ -49,19 +88,45 @@ export interface ObjectSpecs {
   Line: { from: Coordinate; to: Coordinate };
   Arrow: { from: Coordinate; to: Coordinate };
   DoubleArrow: { from: Coordinate; to: Coordinate };
-  DashedLine: { from: Coordinate; to: Coordinate; dashLength?: Scalar; dashRatio?: number };
+  DashedLine: {
+    from: Coordinate;
+    to: Coordinate;
+    dashLength?: Scalar;
+    dashRatio?: number;
+  };
   ArcBetweenPoints: { from: Coordinate; to: Coordinate; angle?: Scalar };
   CurvedArrow: { from: Coordinate; to: Coordinate; angle?: Scalar };
   CurvedDoubleArrow: { from: Coordinate; to: Coordinate; angle?: Scalar };
-  Angle: { from: Coordinate; vertex: Coordinate; to: Coordinate; radius?: Scalar; otherAngle?: boolean };
-  RightAngle: { from: Coordinate; vertex: Coordinate; to: Coordinate; size?: Scalar };
+  Angle: {
+    from: Coordinate;
+    vertex: Coordinate;
+    to: Coordinate;
+    radius?: Scalar;
+    otherAngle?: boolean;
+  };
+  RightAngle: {
+    from: Coordinate;
+    vertex: Coordinate;
+    to: Coordinate;
+    size?: Scalar;
+  };
   Triangle: { radius?: Scalar };
   SurroundingRectangle: { target: string; padding?: Scalar };
   BackgroundRectangle: { target: string; padding?: Scalar };
-  Brace: { target: string; side?: "left" | "right" | "top" | "bottom"; padding?: Scalar; depth?: Scalar };
+  Brace: {
+    target: string;
+    side?: "left" | "right" | "top" | "bottom";
+    padding?: Scalar;
+    depth?: Scalar;
+  };
   Elbow: { width?: Scalar; angle?: Scalar };
   Annulus: { innerRadius?: Scalar; radius?: Scalar };
-  AnnularSector: { innerRadius?: Scalar; radius?: Scalar; startAngle?: Scalar; angle?: Scalar };
+  AnnularSector: {
+    innerRadius?: Scalar;
+    radius?: Scalar;
+    startAngle?: Scalar;
+    angle?: Scalar;
+  };
   RegularPolygram: { sides: number; step: number; radius?: Scalar };
   ConvexHull: { points: Coordinate[] };
   Polyhedron: { points: Coordinate[]; faces: number[][] };
@@ -69,10 +134,33 @@ export interface ObjectSpecs {
   Icosahedron: { radius?: Scalar };
   Dodecahedron: { radius?: Scalar };
   RoundedRectangle: { width?: Scalar; height?: Scalar; cornerRadius?: Scalar };
-  ImplicitFunction: { expression: string; xRange: [number, number]; yRange: [number, number]; resolution?: number };
-  ArrowVectorField: { expressions: Coordinate; xRange: [number, number]; yRange: [number, number]; zRange?: [number, number]; spacing?: number; lengthScale?: Scalar; maxLength?: number };
-  StreamLines: { expressions: Coordinate; seeds: Coordinate[]; step?: number; steps?: number };
-  TracedPath: { point: string; start?: number; duration?: number; samples?: number };
+  ImplicitFunction: {
+    expression: string;
+    xRange: [number, number];
+    yRange: [number, number];
+    resolution?: number;
+  };
+  ArrowVectorField: {
+    expressions: Coordinate;
+    xRange: [number, number];
+    yRange: [number, number];
+    zRange?: [number, number];
+    spacing?: number;
+    lengthScale?: Scalar;
+    maxLength?: number;
+  };
+  StreamLines: {
+    expressions: Coordinate;
+    seeds: Coordinate[];
+    step?: number;
+    steps?: number;
+  };
+  TracedPath: {
+    point: string;
+    start?: number;
+    duration?: number;
+    samples?: number;
+  };
   Polyline: { points: Coordinate[] };
   Polygon: { points: Coordinate[] };
   RegularPolygon: { sides: number; radius?: Scalar };
@@ -156,9 +244,12 @@ export interface EventSpecs {
   Wiggle: { angle?: number };
   Blink: { count?: number };
   Homotopy: { expressions: Coordinate };
+  ComplexHomotopy: { expression: string };
   ApplyPointwiseFunction: { expressions: Coordinate };
   PhaseFlow: { expressions: Coordinate; steps?: number; virtualTime?: number };
   Restore: { at?: number };
+  Swap: { to: string };
+  FadeTransform: { to: string };
   ApplyWave: { amplitude?: number; waves?: number; direction?: Vec3 };
   AddTextLetterByLetter: {};
   RemoveTextLetterByLetter: {};
@@ -168,10 +259,21 @@ export interface EventSpecs {
   GrowFromCenter: {};
   GrowArrow: {};
   GrowFromPoint: { point: Coordinate };
-  GrowFromEdge: { edge: "left" | "right" | "top" | "bottom" | "front" | "back" };
+  GrowFromEdge: {
+    edge: "left" | "right" | "top" | "bottom" | "front" | "back";
+  };
   SpinInFromNothing: { angle?: number };
   DrawBorderThenFill: {};
   ShowPassingFlash: { timeWidth?: number };
+  Flash: {
+    color?: string;
+    radius?: number;
+    lineLength?: number;
+    numLines?: number;
+  };
+  FocusOn: { color?: string; radius?: number };
+  Circumscribe: { color?: string; padding?: number };
+  TransformFromCopy: { to: string };
   Transform: { to: string };
   ReplacementTransform: { to: string };
 }
@@ -185,8 +287,24 @@ export type ObjectEvent = {
   } & EventSpecs[K];
 }[keyof EventSpecs];
 export type CameraEvent =
-  | { type: "CameraMove"; space: string; position: Vec3; center?: Vec3; start?: number; duration?: number; easing?: Ease }
-  | { type: "CameraOrbit"; space: string; angle: number; axis?: Vec3; start?: number; duration?: number; easing?: Ease }
+  | {
+      type: "CameraMove";
+      space: string;
+      position: Vec3;
+      center?: Vec3;
+      start?: number;
+      duration?: number;
+      easing?: Ease;
+    }
+  | {
+      type: "CameraOrbit";
+      space: string;
+      angle: number;
+      axis?: Vec3;
+      start?: number;
+      duration?: number;
+      easing?: Ease;
+    }
   | {
       type: "CameraZoom";
       space: string;
@@ -225,7 +343,29 @@ export interface PictureInPictureFrame {
   width: number;
   height: number;
 }
+export type EventTemplate = {
+  [K in keyof EventSpecs]: {
+    type: K;
+    duration?: number;
+    easing?: Ease;
+  } & EventSpecs[K];
+}[keyof EventSpecs];
 export type SceneEvent =
+  | {
+      type: "CyclicReplace";
+      objects: string[];
+      start?: number;
+      duration?: number;
+      easing?: Ease;
+    }
+  | {
+      type: "LaggedStartMap";
+      objects: string[];
+      animation: EventTemplate;
+      start?: number;
+      duration?: number;
+      lagRatio?: number;
+    }
   | CameraEvent
   | ObjectEvent
   | {
@@ -289,8 +429,15 @@ export type Matrix4 = number[];
 /** Renderer-neutral world geometry: paths, indexed triangles, anchors and labels. */
 export interface Geometry {
   /** Optional render-time function sampling; base points remain deterministic. */
-  functionPlot?: { expression: string | number; values: Record<string, number>; domain?: [number, number] };
-  kind: "path" | "mesh" | "point" | "text" | "group";
+  functionPlot?: {
+    expression: string | number;
+    values: Record<string, number>;
+    domain?: [number, number];
+  };
+  kind: "path" | "mesh" | "point" | "text" | "group" | "image";
+  source?: string;
+  /** Polygon groups contain the starting indices of their outer and hole rings. */
+  polygons?: number[][];
   points: Vec3[];
   indices?: number[];
   closed?: boolean;
@@ -302,6 +449,8 @@ export interface Geometry {
   math?: boolean;
 }
 export interface ObjectFrame {
+  /** False for temporary animation overlays, which do not intercept picking. */
+  interactive?: boolean;
   id: string;
   draggable?: boolean;
   caption?: string;

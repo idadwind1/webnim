@@ -106,3 +106,21 @@ test("Canvas renders and picks separate dashes and streamlines without bridges",
     }
   }
 });
+
+test('Canvas annulus renders separate contours and picks the ring without filling its hole',()=>{
+ const c=compileScene(doc([{id:'ring',type:'Annulus',innerRadius:1,radius:2,style:{fillOpacity:.5}}]));
+ const saved=['document','window'].map(k=>[k,Object.getOwnPropertyDescriptor(globalThis,k)]);let rule;
+ const ctx=new Proxy({fill(value){rule=value;}},{get:(o,k)=>k in o?o[k]:()=>{}});
+ const canvas={style:{},getContext:()=>ctx,addEventListener(){},removeEventListener(){},remove(){}};
+ Object.defineProperty(globalThis,'document',{configurable:true,value:{createElement:()=>canvas}});Object.defineProperty(globalThis,'window',{configurable:true,value:{devicePixelRatio:1}});
+ let adapter;
+ try{adapter=createCanvasAdapter({...c.document.spaces[0],grid:false,axes:false},()=>{});adapter.resize(800,600);adapter.draw(evaluateDocument(c,0).spaces[0],null);const pick=p=>{const q=adapter.project(p);return adapter.pick(q[0],q[1]);};assert.equal(rule,'evenodd');assert.equal(pick([0,0,0]),null);assert.equal(pick([1.5,0,0]),'s.ring');assert.equal(strokePaths(frame(c)[0]).length,2);}
+ finally{adapter?.dispose();for(const [k,d]of saved){if(d)Object.defineProperty(globalThis,k,d);else delete globalThis[k];}}
+});
+
+test('arc polygons join exact vertices and animated boundaries follow the source without hiding it',()=>{
+ const c=compileScene(doc([{id:'arc',type:'ArcPolygon',points:[[-1,0],[1,0],[0,2]],angles:[.5,.5,.5]},{id:'boundary',type:'AnimatedBoundary',target:'s.arc',period:2}],{events:[{type:'Shift',object:'s.arc',by:[2,0],duration:2}]}));
+ const f=frame(c,1);assert.ok(f[0].visible);assert.equal(f[0].geometry.closed,true);assert.deepEqual(f[0].geometry.points[0],[0,0,0]);assert.deepEqual(f[0].geometry.points.at(-1),[0,0,0]);assert.deepEqual(f[1].geometry.points,f[0].geometry.points);assert.deepEqual(f[1].strokeRange,[.375,.625]);assert.equal(f[1].fillReveal,0);
+ const first=frame(c,1);frame(c,2);assert.deepEqual(frame(c,1),first);
+ assert.throws(()=>compileScene(doc([{id:'arc',type:'ArcPolygon',points:[[0,0],[1,0],[0,1]],angles:[1,1,1,1]}])),/one sweep/);
+});

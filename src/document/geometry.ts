@@ -84,6 +84,37 @@ function generateGeometry(
     return { kind: "mesh", points, indices };
   };
   switch (d.type) {
+    case "ImageMobject":
+    case "ImageSequence": {
+      const w = n("width", 2) / 2,
+        h = n("height", 2) / 2;
+      const rawIndex =
+        d.type === "ImageSequence"
+          ? Math.floor(Math.max(0, values.t - (d.start ?? 0)) * (d.fps ?? 12))
+          : 0;
+      const index = Number.isFinite(rawIndex)
+        ? rawIndex
+        : d.type === "ImageSequence"
+          ? d.sources.length - 1
+          : 0;
+      return {
+        kind: "image",
+        source:
+          d.type === "ImageMobject"
+            ? d.source
+            : d.sources[
+                d.loop
+                  ? index % d.sources.length
+                  : Math.min(index, d.sources.length - 1)
+              ],
+        points: [
+          [-w, h, 0],
+          [w, h, 0],
+          [w, -h, 0],
+          [-w, -h, 0],
+        ],
+      };
+    }
     case "ImplicitFunction":
     case "ArrowVectorField":
     case "StreamLines":
@@ -100,40 +131,82 @@ function generateGeometry(
       return path([coord("from"), coord("to")]);
     case "DashedLine": {
       const length = n("dashLength", 0.2);
-      return { ...path([coord("from"), coord("to")]),
-        ...(Number.isFinite(length) ? { dash: { length, ratio: d.dashRatio ?? 0.5 } }
-          : { points: [[NaN, NaN, NaN] as Vec3] }) };
+      return {
+        ...path([coord("from"), coord("to")]),
+        ...(Number.isFinite(length)
+          ? { dash: { length, ratio: d.dashRatio ?? 0.5 } }
+          : { points: [[NaN, NaN, NaN] as Vec3] }),
+      };
     }
     case "ArcBetweenPoints":
     case "CurvedArrow":
     case "CurvedDoubleArrow": {
-      const a = coord("from"), b = coord("to"), angle = n("angle", Math.PI / 2);
-      const delta = sub3(b, a), length = Math.hypot(...delta);
-      if (!Number.isFinite(angle) || Math.abs(angle) >= 2 * Math.PI || length === 0)
+      const a = coord("from"),
+        b = coord("to"),
+        angle = n("angle", Math.PI / 2);
+      const delta = sub3(b, a),
+        length = Math.hypot(...delta);
+      if (
+        !Number.isFinite(angle) ||
+        Math.abs(angle) >= 2 * Math.PI ||
+        length === 0
+      )
         return path([[NaN, NaN, NaN]]);
       if (Math.abs(angle) < 1e-8) return path([a, b]);
       const direction = unit3(delta);
       // Choose the XY plane for 2D; in 3D use a perpendicular plane through the chord.
-      const perpendicular: Vec3 = Math.hypot(direction[0], direction[1]) > 1e-10
-        ? unit3([-direction[1], direction[0], 0]) : [1, 0, 0];
-      const center = add3(mul3(add3(a, b), 0.5), mul3(perpendicular, length / (2 * Math.tan(angle / 2))));
+      const perpendicular: Vec3 =
+        Math.hypot(direction[0], direction[1]) > 1e-10
+          ? unit3([-direction[1], direction[0], 0])
+          : [1, 0, 0];
+      const center = add3(
+        mul3(add3(a, b), 0.5),
+        mul3(perpendicular, length / (2 * Math.tan(angle / 2))),
+      );
       const radial = sub3(a, center);
       // A perpendicular radius with the same magnitude, oriented toward the endpoint.
-      const tangent = add3(mul3(direction, length / (2 * Math.tan(angle / 2))), mul3(perpendicular, -length / 2));
-      const points = sample(128, s => add3(center,
-        add3(mul3(radial, Math.cos(s * angle)), mul3(tangent, Math.sin(s * angle)))));
-      points[0] = a; points[points.length - 1] = b;
+      const tangent = add3(
+        mul3(direction, length / (2 * Math.tan(angle / 2))),
+        mul3(perpendicular, -length / 2),
+      );
+      const points = sample(128, (s) =>
+        add3(
+          center,
+          add3(
+            mul3(radial, Math.cos(s * angle)),
+            mul3(tangent, Math.sin(s * angle)),
+          ),
+        ),
+      );
+      points[0] = a;
+      points[points.length - 1] = b;
       return path(points);
     }
     case "Angle":
     case "RightAngle": {
-      const vertex = coord("vertex"), a = sub3(coord("from"), vertex), b = sub3(coord("to"), vertex);
-      if (Math.hypot(...a) === 0 || Math.hypot(...b) === 0) return path([[NaN, NaN, NaN]]);
-      const u = unit3(a), v = unit3(b), dot = Math.max(-1, Math.min(1, u.reduce((sum, x, i) => sum + x * v[i], 0)));
+      const vertex = coord("vertex"),
+        a = sub3(coord("from"), vertex),
+        b = sub3(coord("to"), vertex);
+      if (Math.hypot(...a) === 0 || Math.hypot(...b) === 0)
+        return path([[NaN, NaN, NaN]]);
+      const u = unit3(a),
+        v = unit3(b),
+        dot = Math.max(
+          -1,
+          Math.min(
+            1,
+            u.reduce((sum, x, i) => sum + x * v[i], 0),
+          ),
+        );
       if (d.type === "RightAngle") {
         if (Math.abs(dot) > 1e-6) return path([[NaN, NaN, NaN]]);
-        const x = mul3(u, n("size", 0.25)), y = mul3(v, n("size", 0.25));
-        return path([add3(vertex, x), add3(vertex, add3(x, y)), add3(vertex, y)]);
+        const x = mul3(u, n("size", 0.25)),
+          y = mul3(v, n("size", 0.25));
+        return path([
+          add3(vertex, x),
+          add3(vertex, add3(x, y)),
+          add3(vertex, y),
+        ]);
       }
       let angle = Math.acos(dot);
       let tangent = sub3(v, mul3(u, dot));
@@ -142,54 +215,166 @@ function generateGeometry(
       tangent = unit3(tangent);
       if (d.otherAngle) angle -= 2 * Math.PI;
       const radius = n("radius", 0.5);
-      return path(sample(64, s => add3(vertex,
-        mul3(add3(mul3(u, Math.cos(angle * s)), mul3(tangent, Math.sin(angle * s))), radius))));
+      return path(
+        sample(64, (s) =>
+          add3(
+            vertex,
+            mul3(
+              add3(
+                mul3(u, Math.cos(angle * s)),
+                mul3(tangent, Math.sin(angle * s)),
+              ),
+              radius,
+            ),
+          ),
+        ),
+      );
+    }
+    case "AnimatedBoundary":
+      return dependency ?? path([]);
+    case "ArcPolygon": {
+      const points: Vec3[] = [];
+      for (let i = 0; i < d.points.length; i++) {
+        const expressions = new Map(o.expressions);
+        for (let k = 0; k < (o.space.type === "space3d" ? 3 : 2); k++) {
+          expressions.set(`from.${k}`, o.expressions.get(`points.${i}.${k}`)!);
+          expressions.set(
+            `to.${k}`,
+            o.expressions.get(`points.${(i + 1) % d.points.length}.${k}`)!,
+          );
+        }
+        const angle = o.expressions.get(`angles.${i}`);
+        if (angle) expressions.set("angle", angle);
+        else expressions.delete("angle");
+        const g = angle
+          ? generateGeometry(
+              {
+                ...o,
+                definition: {
+                  id: d.id,
+                  type: "ArcBetweenPoints",
+                  from: d.points[i],
+                  to: d.points[(i + 1) % d.points.length],
+                },
+                expressions,
+              },
+              values,
+            )
+          : path([
+              coord(`points.${i}`),
+              coord(`points.${(i + 1) % d.points.length}`),
+            ]);
+        points.push(...(i ? g.points.slice(1) : g.points));
+      }
+      return path(points, true);
     }
     case "SurroundingRectangle":
     case "BackgroundRectangle":
     case "Brace": {
-      const points=dependency?.points ?? [],pad=n("padding",.15);
-      if(!points.length || !Number.isFinite(pad) || pad<0)return path([[NaN,NaN,NaN]]);
-      const min=[0,1].map(i=>Math.min(...points.map(p=>p[i]))-pad),max=[0,1].map(i=>Math.max(...points.map(p=>p[i]))+pad);
-      if(d.type!=="Brace")return path([[min[0],min[1],0],[max[0],min[1],0],[max[0],max[1],0],[min[0],max[1],0]],true);
-      const side=d.side??"bottom",vertical=side==="left"||side==="right",axis=vertical?1:0,sign=side==="left"||side==="bottom"?-1:1,edge=sign<0?min[1-axis]:max[1-axis],depth=n("depth",.2);
-      return path(sample(96,u=>{
-        const q=(1-Math.cos(4*Math.PI*u))/4 + Math.exp(-(((u-.5)/.06)**2))*.75;
-        const along=min[axis]+(max[axis]-min[axis])*u,across=edge+sign*depth*q;
-        return vertical?[across,along,0]:[along,across,0];
-      }));
+      const points = dependency?.points ?? [],
+        pad = n("padding", 0.15);
+      if (!points.length || !Number.isFinite(pad) || pad < 0)
+        return path([[NaN, NaN, NaN]]);
+      const min = [0, 1].map((i) => Math.min(...points.map((p) => p[i])) - pad),
+        max = [0, 1].map((i) => Math.max(...points.map((p) => p[i])) + pad);
+      if (d.type !== "Brace")
+        return path(
+          [
+            [min[0], min[1], 0],
+            [max[0], min[1], 0],
+            [max[0], max[1], 0],
+            [min[0], max[1], 0],
+          ],
+          true,
+        );
+      const side = d.side ?? "bottom",
+        vertical = side === "left" || side === "right",
+        axis = vertical ? 1 : 0,
+        sign = side === "left" || side === "bottom" ? -1 : 1,
+        edge = sign < 0 ? min[1 - axis] : max[1 - axis],
+        depth = n("depth", 0.2);
+      return path(
+        sample(96, (u) => {
+          const q =
+            (1 - Math.cos(4 * Math.PI * u)) / 4 +
+            Math.exp(-(((u - 0.5) / 0.06) ** 2)) * 0.75;
+          const along = min[axis] + (max[axis] - min[axis]) * u,
+            across = edge + sign * depth * q;
+          return vertical ? [across, along, 0] : [along, across, 0];
+        }),
+      );
     }
     case "Elbow": {
-      const w = n("width", 0.25), a = n("angle", 0);
-      return path([[w,0,0],[w,w,0],[0,w,0]].map(([x,y,z]) => [x*Math.cos(a)-y*Math.sin(a), x*Math.sin(a)+y*Math.cos(a), z]));
+      const w = n("width", 0.25),
+        a = n("angle", 0);
+      return path(
+        [
+          [w, 0, 0],
+          [w, w, 0],
+          [0, w, 0],
+        ].map(([x, y, z]) => [
+          x * Math.cos(a) - y * Math.sin(a),
+          x * Math.sin(a) + y * Math.cos(a),
+          z,
+        ]),
+      );
     }
     case "Annulus":
     case "AnnularSector": {
-      const inner = n("innerRadius", 0.5), outer = n("radius", 1);
-      const a = d.type === "Annulus" ? 2*Math.PI : n("angle", Math.PI/2), start = n("startAngle",0);
-      if (!(inner < outer) || Math.abs(a)>2*Math.PI || a===0) return path([[NaN,NaN,NaN]]);
-      const outside=circle(outer,outer,start,a), inside=circle(inner,inner,start,a).reverse();
-      const points=[...outside,...inside], indices:number[]=[];
-      for(let i=0;i<128;i++) indices.push(i,i+1,257-i,i+1,256-i,257-i);
-      return {...path(points,true),indices,...(d.type==="Annulus" ? {breaks:[0,129]} : {})};
+      const inner = n("innerRadius", 0.5),
+        outer = n("radius", 1);
+      const a = d.type === "Annulus" ? 2 * Math.PI : n("angle", Math.PI / 2),
+        start = n("startAngle", 0);
+      if (!(inner < outer) || Math.abs(a) > 2 * Math.PI || a === 0)
+        return path([[NaN, NaN, NaN]]);
+      const outside = circle(outer, outer, start, a),
+        inside = circle(inner, inner, start, a).reverse();
+      const points = [...outside, ...inside],
+        indices: number[] = [];
+      for (let i = 0; i < 128; i++)
+        indices.push(i, i + 1, 257 - i, i + 1, 256 - i, 257 - i);
+      return {
+        ...path(points, true),
+        indices,
+        ...(d.type === "Annulus" ? { breaks: [0, 129] } : {}),
+      };
     }
     case "RegularPolygram": {
-      const visited=new Set<number>(), points:Vec3[]=[], breaks:number[]=[];
-      for(let i=0;i<d.sides;i++) if(!visited.has(i)) {
-        breaks.push(points.length); let j=i;
-        do { visited.add(j); const a=j*2*Math.PI/d.sides+Math.PI/2; points.push([n("radius")*Math.cos(a),n("radius")*Math.sin(a),0]); j=(j+d.step)%d.sides; } while(j!==i);
-        points.push(points[breaks.at(-1)!]);
-      }
-      return {...path(points,true),...(breaks.length>1?{breaks}:{})};
+      const visited = new Set<number>(),
+        points: Vec3[] = [],
+        breaks: number[] = [];
+      for (let i = 0; i < d.sides; i++)
+        if (!visited.has(i)) {
+          breaks.push(points.length);
+          let j = i;
+          do {
+            visited.add(j);
+            const a = (j * 2 * Math.PI) / d.sides + Math.PI / 2;
+            points.push([
+              n("radius") * Math.cos(a),
+              n("radius") * Math.sin(a),
+              0,
+            ]);
+            j = (j + d.step) % d.sides;
+          } while (j !== i);
+          points.push(points[breaks.at(-1)!]);
+        }
+      return { ...path(points), ...(breaks.length > 1 ? { breaks } : {}) };
     }
     case "ConvexHull": {
-      const points=hull2D(d.points.map((_,i)=>coord(`points.${i}`)));
-      return path(points.length>=3?points:[[NaN,NaN,NaN]],true);
+      const points = hull2D(d.points.map((_, i) => coord(`points.${i}`)));
+      return path(points.length >= 3 ? points : [[NaN, NaN, NaN]], true);
     }
-    case "Polyhedron": return polyhedron(d.points.map((_,i)=>coord(`points.${i}`)),d.faces);
-    case "ConvexHull3D": return hull3D(d.points.map((_,i)=>coord(`points.${i}`)));
+    case "Polyhedron":
+      return polyhedron(
+        d.points.map((_, i) => coord(`points.${i}`)),
+        d.faces,
+      );
+    case "ConvexHull3D":
+      return hull3D(d.points.map((_, i) => coord(`points.${i}`)));
     case "Icosahedron":
-    case "Dodecahedron": return platonic(d.type,n("radius"));
+    case "Dodecahedron":
+      return platonic(d.type, n("radius"));
     case "Polyline":
     case "Polygon":
       return path(
@@ -199,7 +384,8 @@ function generateGeometry(
     case "RegularPolygon":
     case "Triangle":
     case "Star": {
-      const count = d.type === "Star" ? d.tips * 2 : d.type === "Triangle" ? 3 : d.sides;
+      const count =
+        d.type === "Star" ? d.tips * 2 : d.type === "Triangle" ? 3 : d.sides;
       return path(
         Array.from({ length: count }, (_, i) => {
           const a = (i * Math.PI * 2) / count + Math.PI / 2,
@@ -218,9 +404,21 @@ function generateGeometry(
       if (d.type === "RoundedRectangle") {
         const r = n("cornerRadius", Math.min(0.2, w, h));
         if (r > Math.min(w, h)) return path([[NaN, NaN, NaN]]);
-        return path([[w - r, h - r], [-w + r, h - r], [-w + r, -h + r], [w - r, -h + r]]
-          .flatMap(([x, y], corner) => sample(16, s =>
-            [x + r * Math.cos((corner + s) * Math.PI / 2), y + r * Math.sin((corner + s) * Math.PI / 2), 0])), true);
+        return path(
+          [
+            [w - r, h - r],
+            [-w + r, h - r],
+            [-w + r, -h + r],
+            [w - r, -h + r],
+          ].flatMap(([x, y], corner) =>
+            sample(16, (s) => [
+              x + r * Math.cos(((corner + s) * Math.PI) / 2),
+              y + r * Math.sin(((corner + s) * Math.PI) / 2),
+              0,
+            ]),
+          ),
+          true,
+        );
       }
       return path(
         [
@@ -274,24 +472,38 @@ function generateGeometry(
     case "PolarGraph":
     case "ParametricCurve":
       return {
-        ...(d.type === "FunctionGraph" ? { functionPlot: {
-          expression: d.expression,
-          values: Object.fromEntries((o.expressions.get("expression")?.dependencies ?? []).filter(k => k !== "x").map(k => [k, values[k]])),
-          ...(d.domain ? { domain: d.domain } : {}),
-        } } : {}),
+        ...(d.type === "FunctionGraph"
+          ? {
+              functionPlot: {
+                expression: d.expression,
+                values: Object.fromEntries(
+                  (o.expressions.get("expression")?.dependencies ?? [])
+                    .filter((k) => k !== "x")
+                    .map((k) => [k, values[k]]),
+                ),
+                ...(d.domain ? { domain: d.domain } : {}),
+              },
+            }
+          : {}),
         ...path(
-        sample(d.samples ?? 256, (s) => {
-          const domain = d.domain ?? (d.type === "FunctionGraph" ? [-10, 10] : d.type === "PolarGraph" ? [0, 2 * Math.PI] : [0, 1]);
-          const q = domain[0] + (domain[1] - domain[0]) * s;
-          if (d.type === "FunctionGraph")
-            return [q, n("expression", 0, { x: q }), 0];
-          if (d.type === "PolarGraph") {
-            const r = n("expression", 0, { theta: q });
-            return [r * Math.cos(q), r * Math.sin(q), 0];
-          }
-          return coord("expressions", { u: q });
-        }),
-      ),
+          sample(d.samples ?? 256, (s) => {
+            const domain =
+              d.domain ??
+              (d.type === "FunctionGraph"
+                ? [-10, 10]
+                : d.type === "PolarGraph"
+                  ? [0, 2 * Math.PI]
+                  : [0, 1]);
+            const q = domain[0] + (domain[1] - domain[0]) * s;
+            if (d.type === "FunctionGraph")
+              return [q, n("expression", 0, { x: q }), 0];
+            if (d.type === "PolarGraph") {
+              const r = n("expression", 0, { theta: q });
+              return [r * Math.cos(q), r * Math.sin(q), 0];
+            }
+            return coord("expressions", { u: q });
+          }),
+        ),
       };
     case "PointOnCurve":
     case "Tangent": {
@@ -320,8 +532,17 @@ function generateGeometry(
             : d.text,
         math: d.type === "MathTex",
       };
-    case "Table": case "MathTable": case "DecimalTable": case "Matrix": case "DecimalMatrix": case "IntegerMatrix":
-    case "BarChart": case "SampleSpace": case "Graph": case "DiGraph":
+    case "Matrix":
+    case "DecimalMatrix":
+    case "IntegerMatrix":
+    case "BarChart":
+    case "SampleSpace":
+    case "Graph":
+    case "DiGraph":
+    case "Union":
+    case "Difference":
+    case "Intersection":
+    case "Exclusion":
     case "Group":
       return { kind: "group", points: [] };
     case "Sphere":
@@ -432,7 +653,10 @@ export function geometryFor(
   const keys = [
     ...new Set([...o.expressions.values()].flatMap((e) => e.dependencies)),
   ].sort();
-  const key = JSON.stringify(keys.map((k) => values[k]));
+  const key = JSON.stringify([
+    ...keys.map((k) => values[k]),
+    ...(o.definition.type === "ImageSequence" ? [values.t] : []),
+  ]);
   const cached = cache.get(o);
   if (!dependency && cached?.key === key) return cached.geometry;
   const geometry = generateGeometry(o, values, dependency);

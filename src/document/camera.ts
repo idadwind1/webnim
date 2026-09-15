@@ -25,7 +25,13 @@ export function evaluateCamera(
       position = lerp3(position, event.position, p);
       center = lerp3(center, event.center ?? center, p);
     } else if (event.type === "CameraOrbit") {
-      position = add3(center, transform3(sub3(position, center), rotation(event.angle*p, event.axis ?? [0,0,1])));
+      position = add3(
+        center,
+        transform3(
+          sub3(position, center),
+          rotation(event.angle * p, event.axis ?? [0, 0, 1]),
+        ),
+      );
     } else {
       const target: Vec3 = [
         event.x[0] / 2 + event.x[1] / 2,
@@ -36,12 +42,19 @@ export function evaluateCamera(
         width / (event.x[1] - event.x[0]),
         event.y ? height / (event.y[1] - event.y[0]) : Infinity,
       );
-      position = add3(position, sub3(lerp3(center,target,p),center));
+      position = add3(position, sub3(lerp3(center, target, p), center));
       center = center.map((v, i) => v * (1 - p) + target[i] * p) as Vec3;
       scale = Math.exp(Math.log(scale) * (1 - p) + Math.log(fit) * p);
     }
-    if (!position.every(Number.isFinite) || !center.every(Number.isFinite) || (space.type === "space3d" && Math.hypot(...sub3(position,center)) < 1e-10))
-      throw new RangeError("Camera position must be finite and differ from center");
+    if (
+      !position.every(Number.isFinite) ||
+      !center.every(Number.isFinite) ||
+      (space.type === "space3d" &&
+        Math.hypot(...sub3(position, center)) < 1e-10)
+    )
+      throw new RangeError(
+        "Camera position must be finite and differ from center",
+      );
     if (!(scale > 0 && Number.isFinite(scale)))
       throw new RangeError("Camera events exceed finite zoom limits");
   }

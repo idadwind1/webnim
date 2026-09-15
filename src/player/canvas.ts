@@ -39,8 +39,15 @@ export function createCanvasAdapter(
     cachedBounds: GridBounds;
   const plotCache = new Map<string, { key: string; points: Vec3[] }>();
   const camera = initialCamera(space),
-    hits: { id: string; points: Vec3[]; filled: boolean; radius: number; fillOnly?: boolean }[] =
-      [];
+    nonInteractive = new Set<string>(),
+    hits: {
+      id: string;
+      points: Vec3[];
+      filled: boolean;
+      radius: number;
+      fillOnly?: boolean;
+      contours?: Vec3[][];
+    }[] = [];
   const project = (p: Vec3): Vec3 => [
     width / 2 + (p[0] - camera.center[0]) * camera.scale,
     height / 2 - (p[1] - camera.center[1]) * camera.scale,
@@ -69,7 +76,8 @@ export function createCanvasAdapter(
     const center = [...camera.center] as Vec3;
     center[0] -= (event.clientX - pan.x) / camera.scale;
     center[1] += (event.clientY - pan.y) / camera.scale;
-    if (validViewport(center, camera.scale, width, height)) camera.center = center;
+    if (validViewport(center, camera.scale, width, height))
+      camera.center = center;
     pan.x = event.clientX;
     pan.y = event.clientY;
     changed();
@@ -160,6 +168,9 @@ export function createCanvasAdapter(
       ctx.fillStyle = frame.theme.background;
       ctx.fillRect(0, 0, width, height);
       hits.length = 0;
+      nonInteractive.clear();
+      for (const o of frame.objects)
+        if (o.interactive === false) nonInteractive.add(o.id);
       const spanX = width / camera.scale / 2,
         spanY = height / camera.scale / 2;
       const view = {
@@ -181,10 +192,7 @@ export function createCanvasAdapter(
           transformSpacePoint(fn(i / 80), frame.transforms),
         );
       ctx.globalAlpha = 1;
-      if (
-        space.grid !== false &&
-        space.type !== "axis1d"
-      ) {
+      if (space.grid !== false && space.type !== "axis1d") {
         if (space.type === "polar2d") {
           const radius = Math.hypot(
             Math.max(Math.abs(minX), Math.abs(maxX)),
@@ -229,10 +237,7 @@ export function createCanvasAdapter(
           1.3,
         );
       ctx.globalAlpha = 1;
-      if (
-        axesEnabled(space, "y") &&
-        space.type !== "axis1d"
-      )
+      if (axesEnabled(space, "y") && space.type !== "axis1d")
         line(
           mapped((t) => [0, minY + (maxY - minY) * t, 0]),
           frame.theme.axes,
@@ -266,10 +271,7 @@ export function createCanvasAdapter(
             tickLabel(x, p[0] + 3, p[1] + 15);
           }
         ctx.globalAlpha = 1;
-        if (
-            axesEnabled(space, "y") &&
-          space.type !== "axis1d"
-        )
+        if (axesEnabled(space, "y") && space.type !== "axis1d")
           for (const y of gridValues(minY, maxY, step)) {
             const p = project(transformSpacePoint([0, y, 0], frame.transforms));
             ctx.fillRect(p[0] - 3, p[1], 6, 1);
@@ -281,17 +283,42 @@ export function createCanvasAdapter(
         ...frame.objects.filter((o) => !o.draggable),
         ...frame.objects.filter((o) => o.draggable),
       ];
-      for (const id of plotCache.keys()) if (!ordered.some(o => o.id === id)) plotCache.delete(id);
+      for (const id of plotCache.keys())
+        if (!ordered.some((o) => o.id === id)) plotCache.delete(id);
       for (const original of ordered) {
         let object = original;
-        if (object.geometry.functionPlot && object.reveal >= 1 && object.visible && !object.strokeRange) {
-          const key = JSON.stringify([object.geometry.functionPlot, object.matrix, frame.transforms, view, width, height]);
+        if (
+          object.geometry.functionPlot &&
+          object.reveal >= 1 &&
+          object.visible &&
+          !object.strokeRange
+        ) {
+          const key = JSON.stringify([
+            object.geometry.functionPlot,
+            object.matrix,
+            frame.transforms,
+            view,
+            width,
+            height,
+          ]);
           let cached = plotCache.get(object.id);
           if (cached?.key !== key) {
-            cached = { key, points: sampleFunctionPlot(object, frame.transforms, cachedBounds, project, width) };
+            cached = {
+              key,
+              points: sampleFunctionPlot(
+                object,
+                frame.transforms,
+                cachedBounds,
+                project,
+                width,
+              ),
+            };
             plotCache.set(object.id, cached);
           }
-          object = { ...object, geometry: { ...object.geometry, points: cached.points } };
+          object = {
+            ...object,
+            geometry: { ...object.geometry, points: cached.points },
+          };
         }
         if (
           !object.visible ||
@@ -316,13 +343,20 @@ export function createCanvasAdapter(
               object.opacity * (hover === object.id ? 0.32 : 0.2);
             ctx.beginPath();
             ctx.arc(points[0][0], points[0][1], radius + 7, 0, Math.PI * 2);
-            ctx.fill("evenodd");
-            if (object.geometry.breaks && (object.style.fillOpacity ?? 0.15)>0) hits.push({id:object.id, points:object.geometry.points.map(project), filled:true, radius:0, fillOnly:true});
+            ctx.fill();
             ctx.globalAlpha = object.opacity;
           }
           ctx.beginPath();
           ctx.arc(points[0][0], points[0][1], radius, 0, Math.PI * 2);
           ctx.fill();
+        } else if (object.geometry.kind === "image") {
+          hits.push({
+            id: object.id,
+            points: [...points, points[0]],
+            filled: true,
+            radius: 0,
+          });
+          continue;
         } else if (object.geometry.kind === "text") {
           hits.push({
             id: object.id,
@@ -334,16 +368,45 @@ export function createCanvasAdapter(
         } else {
           // Fill the complete shape with reveal-weighted opacity; drawing the
           // partial outline as a fill would create a moving diagonal edge.
-          if (object.geometry.closed && (object.fillReveal ?? object.reveal) > 0) {
+          if (
+            object.geometry.closed &&
+            (object.fillReveal ?? object.reveal) > 0
+          ) {
             ctx.beginPath();
             object.geometry.points.forEach((p, i) => {
               const q = project(p);
-              if (i && !object.geometry.breaks?.includes(i)) ctx.lineTo(q[0], q[1]); else { if (i) ctx.closePath(); ctx.moveTo(q[0], q[1]); }
+              if (i && !object.geometry.breaks?.includes(i))
+                ctx.lineTo(q[0], q[1]);
+              else {
+                if (i) ctx.closePath();
+                ctx.moveTo(q[0], q[1]);
+              }
             });
             ctx.closePath();
-            ctx.globalAlpha = object.opacity * (object.style.fillOpacity ?? 0.15) * (object.fillReveal ?? object.reveal);
+            ctx.globalAlpha =
+              object.opacity *
+              (object.style.fillOpacity ?? 0.15) *
+              (object.fillReveal ?? object.reveal);
             ctx.fill("evenodd");
-            if (object.geometry.breaks && (object.style.fillOpacity ?? 0.15)>0) hits.push({id:object.id, points:object.geometry.points.map(project), filled:true, radius:0, fillOnly:true});
+            if (
+              object.geometry.breaks &&
+              (object.style.fillOpacity ?? 0.15) > 0
+            )
+              hits.push({
+                id: object.id,
+                points: object.geometry.points.map(project),
+                filled: true,
+                radius: 0,
+                fillOnly: true,
+                contours: object.geometry.breaks.map((start, i, starts) =>
+                  object.geometry.points
+                    .slice(
+                      start,
+                      starts[i + 1] ?? object.geometry.points.length,
+                    )
+                    .map(project),
+                ),
+              });
             ctx.globalAlpha = object.opacity;
           }
           ctx.beginPath();
@@ -351,16 +414,32 @@ export function createCanvasAdapter(
             let active = false;
             for (const world of path) {
               const p = project(world);
-              if (!p.every(Number.isFinite)) { active = false; continue; }
-              if (active) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]);
+              if (!p.every(Number.isFinite)) {
+                active = false;
+                continue;
+              }
+              if (active) ctx.lineTo(p[0], p[1]);
+              else ctx.moveTo(p[0], p[1]);
               active = true;
             }
-            if (object.geometry.dash || object.geometry.breaks) hits.push({ id: object.id, points: path.map(project), filled: false, radius: 0 });
+            if (object.geometry.dash || object.geometry.breaks)
+              hits.push({
+                id: object.id,
+                points: path.map(project),
+                filled: false,
+                radius: 0,
+              });
           }
-          if (object.geometry.closed && object.reveal >= 1 && !object.strokeRange) ctx.closePath();
+          if (
+            object.geometry.closed &&
+            object.reveal >= 1 &&
+            !object.strokeRange
+          )
+            ctx.closePath();
           ctx.stroke();
           for (const [tip, adjacent] of arrowTips(object)) {
-            const p = project(tip), q = project(adjacent),
+            const p = project(tip),
+              q = project(adjacent),
               a = Math.atan2(p[1] - q[1], p[0] - q[0]),
               tipLength = 10 * (object.arrowScale ?? 1);
             ctx.beginPath();
@@ -377,18 +456,27 @@ export function createCanvasAdapter(
             ctx.fill();
           }
         }
-        if (!object.geometry.dash && !object.geometry.breaks) hits.push({
-          id: object.id,
-          points: object.geometry.closed && (object.fillReveal ?? object.reveal) > 0 && (object.style.fillOpacity ?? 0.15) > 0
-            ? object.geometry.points.map(project) : points,
-          filled: !!object.geometry.closed && (object.fillReveal ?? object.reveal) > 0 && (object.style.fillOpacity ?? 0.15) > 0,
-          radius: object.draggable ? radius + 7 : radius,
-        });
+        if (!object.geometry.dash && !object.geometry.breaks)
+          hits.push({
+            id: object.id,
+            points:
+              object.geometry.closed &&
+              (object.fillReveal ?? object.reveal) > 0 &&
+              (object.style.fillOpacity ?? 0.15) > 0
+                ? object.geometry.points.map(project)
+                : points,
+            filled:
+              !!object.geometry.closed &&
+              (object.fillReveal ?? object.reveal) > 0 &&
+              (object.style.fillOpacity ?? 0.15) > 0,
+            radius: object.draggable ? radius + 7 : radius,
+          });
       }
       ctx.globalAlpha = 1;
     },
     pick(x, y) {
       for (const hit of [...hits].reverse()) {
+        if (nonInteractive.has(hit.id)) continue;
         if (
           hit.points.length === 1 &&
           Math.hypot(x - hit.points[0][0], y - hit.points[0][1]) <
@@ -400,19 +488,20 @@ export function createCanvasAdapter(
             return hit.id;
         if (hit.filled) {
           let inside = false;
-          for (
-            let i = 0, j = hit.points.length - 1;
-            i < hit.points.length;
-            j = i++
-          ) {
-            const a = hit.points[i],
-              b = hit.points[j];
-            if (
-              a[1] > y !== b[1] > y &&
-              x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]
-            )
-              inside = !inside;
-          }
+          for (const contour of hit.contours ?? [hit.points])
+            for (
+              let i = 0, j = contour.length - 1;
+              i < contour.length;
+              j = i++
+            ) {
+              const a = contour[i],
+                b = contour[j];
+              if (
+                a[1] > y !== b[1] > y &&
+                x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]
+              )
+                inside = !inside;
+            }
           if (inside) return hit.id;
         }
       }

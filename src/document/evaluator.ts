@@ -1,5 +1,10 @@
+import { booleanGeometry } from "./booleans.ts";
 import { easeProgress } from "./easing.ts";
-import { entrances, type CompiledScene } from "./compiler.ts";
+import {
+  entrances,
+  type CompiledScene,
+  type CompiledTrack,
+} from "./compiler.ts";
 import { transformSpacePoint } from "./space-transform.ts";
 import { geometryFor, morphGeometry, resampleGeometry } from "./geometry.ts";
 import {
@@ -37,6 +42,10 @@ export const documentDefaultTheme: Required<DocumentTheme> = {
   grid: "#283142",
   objectColors: ["#58a6ff", "#b695f8", "#75dda5", "#f4b66b"],
 };
+const deformationCache = new WeakMap<
+  CompiledTrack,
+  { source: Geometry; key: string; geometry: Geometry }
+>();
 interface State {
   geometry: Geometry;
   position: Vec3;
@@ -133,14 +142,23 @@ function evaluateFrame(
       d = o.definition,
       values: Record<string, number> = { ...parametersAt(at), t: at };
     for (const ref of o.pointReferences) {
-      const dot = ref.lastIndexOf("."), source = ref.slice(0, dot);
+      const dot = ref.lastIndexOf("."),
+        source = ref.slice(0, dot);
       const point = world(source, at, limit).geometry.points[0];
-      const position = point && transformSpacePoint(point,
-        transformsFor(compiled.objects.get(source)!.space.name, at, limit));
+      const position =
+        point &&
+        transformSpacePoint(
+          point,
+          transformsFor(compiled.objects.get(source)!.space.name, at, limit),
+        );
       values[ref] = position?.["xyz".indexOf(ref.slice(dot + 1))] ?? NaN;
     }
     const dependencyWorld =
-      "curve" in d ? world(d.curve, at, limit).geometry : "target" in d ? world(d.target, at, limit).geometry : undefined;
+      "curve" in d
+        ? world(d.curve, at, limit).geometry
+        : "target" in d
+          ? world(d.target, at, limit).geometry
+          : undefined;
     let dependency = dependencyWorld;
     if (dependencyWorld && o.parent) {
       const parentMatrix = world(o.parent, at, limit).matrix;
@@ -156,16 +174,51 @@ function evaluateFrame(
       };
     }
     const traceGeometry = (): Geometry => {
+      if ("operands" in d) {
+        let inverse = identity4();
+        if (o.parent) {
+          try {
+            inverse = inverse4(world(o.parent, at, limit).matrix);
+          } catch {
+            return { kind: "path", points: [[NaN, NaN, NaN]] };
+          }
+        }
+        return booleanGeometry(
+          o,
+          d.operands.map((id) => {
+            const g = world(id, at, limit).geometry;
+            return {
+              ...g,
+              points: g.points.map((p) => transform3(p, inverse)),
+            };
+          }),
+        );
+      }
       if (d.type !== "TracedPath") return geometryFor(o, values, dependency);
-      const end = at, start = Math.max(d.start ?? 0, d.duration === undefined ? 0 : at - d.duration);
+      const end = at,
+        start = Math.max(
+          d.start ?? 0,
+          d.duration === undefined ? 0 : at - d.duration,
+        );
       if (end < start) return { kind: "path", points: [] };
-      const count = end === start ? 0 : d.samples ?? 256;
-      return { kind: "path", points: Array.from({ length: count + 1 }, (_, i) => {
-        const sampleTime = count ? start + (end - start) * i / count : end;
-        const point = world(d.point, sampleTime, limit).geometry.points[0];
-        return point ? transformSpacePoint(point,
-          transformsFor(compiled.objects.get(d.point)!.space.name, sampleTime, limit)) : [NaN, NaN, NaN];
-      }) };
+      const count = end === start ? 0 : (d.samples ?? 256);
+      return {
+        kind: "path",
+        points: Array.from({ length: count + 1 }, (_, i) => {
+          const sampleTime = count ? start + ((end - start) * i) / count : end;
+          const point = world(d.point, sampleTime, limit).geometry.points[0];
+          return point
+            ? transformSpacePoint(
+                point,
+                transformsFor(
+                  compiled.objects.get(d.point)!.space.name,
+                  sampleTime,
+                  limit,
+                ),
+              )
+            : [NaN, NaN, NaN];
+        }),
+      };
     };
     const geometry = traceGeometry(),
       native =
@@ -174,7 +227,11 @@ function evaluateFrame(
       (t) => "object" in t.event && t.event.object === id,
     );
     const replacementEntrance = compiled.tracks.some(
-      (t) => t.event.type === "ReplacementTransform" && t.event.to === id,
+      (t) =>
+        (t.event.type === "ReplacementTransform" ||
+          t.event.type === "FadeTransform" ||
+          t.event.type === "TransformFromCopy") &&
+        t.event.to === id,
     );
     const s: State = {
       geometry,
@@ -199,31 +256,102 @@ function evaluateFrame(
         !ownTracks.some((t) => entrances.includes(t.event.type)) &&
         !replacementEntrance,
     };
+    if (d.type === "AnimatedBoundary") {
+      const cycles = at / (d.period ?? 2),
+        phase = Number.isFinite(cycles) ? cycles % 1 : 0,
+        width = d.timeWidth ?? 0.25,
+        colors = d.colors ?? ["#58a6ff", "#75dda5", "#f4b66b"];
+      const index = Number.isFinite(cycles)
+        ? Math.floor(cycles) % colors.length
+        : 0;
+      s.strokeRange = [
+        Math.max(0, phase * (1 + width) - width),
+        Math.min(1, phase * (1 + width)),
+      ];
+      s.fillReveal = 0;
+      s.color = colorMix(
+        colors[index],
+        colors[(index + 1) % colors.length],
+        phase,
+      );
+    }
     cache.set(key, s);
     for (const t of compiled.tracks) {
       if (t.index >= limit || t.start > at) continue;
       const a = t.event;
       if (
-        a.type === "ReplacementTransform" &&
+        (a.type === "ReplacementTransform" || a.type === "TransformFromCopy") &&
         a.to === id &&
         at >= t.start + t.duration
       ) {
         s.visible = true;
         continue;
       }
+      if (a.type === "CyclicReplace") {
+        const index = a.objects.indexOf(id);
+        if (index >= 0) {
+          const p = progress(at, t.start, t.duration, a.easing),
+            b = state(id, t.start, t.index),
+            target = state(
+              a.objects[(index + 1) % a.objects.length],
+              t.start,
+              t.index,
+            );
+          const center = (v: State) =>
+            centerOf(
+              v.geometry.points.map((p) => transform3(p, localMatrix(v))),
+            );
+          s.position = add3(
+            b.position,
+            mul3(sub3(center(target), center(b)), p),
+          );
+        }
+        continue;
+      }
       if (!("object" in a)) continue;
       if (a.object !== id) {
+        if ((a.type === "Swap" || a.type === "FadeTransform") && a.to === id) {
+          const p = progress(at, t.start, t.duration, a.easing),
+            b = state(id, t.start, t.index);
+          if (a.type === "FadeTransform") {
+            s.visible = p > 0;
+            s.opacity = (d.style?.opacity ?? 1) * p;
+          } else {
+            const source = state(a.object, t.start, t.index),
+              center = (v: State) =>
+                centerOf(
+                  v.geometry.points.map((p) => transform3(p, localMatrix(v))),
+                );
+            s.position = add3(
+              b.position,
+              mul3(sub3(center(source), center(b)), p),
+            );
+          }
+          continue;
+        }
         let parent = o.parent;
         while (parent && parent !== a.object)
           parent = compiled.objects.get(parent)?.parent;
-        if (parent && (a.type === "ShowIncreasingSubsets" || a.type === "ShowSubmobjectsOneByOne")) {
+        if (
+          parent &&
+          (a.type === "ShowIncreasingSubsets" ||
+            a.type === "ShowSubmobjectsOneByOne")
+        ) {
           const group = compiled.objects.get(parent)!.definition;
           if (group.type === "Group") {
             let child = id;
-            while (compiled.objects.get(child)?.parent !== parent) child = compiled.objects.get(child)!.parent!;
-            const index = group.children.indexOf(child), p = progress(at,t.start,t.duration,a.easing);
-            const count = Math.min(group.children.length, Math.floor(p*group.children.length + 1e-10));
-            s.visible = a.type === "ShowIncreasingSubsets" ? index < count : count > 0 && index === count-1;
+            while (compiled.objects.get(child)?.parent !== parent)
+              child = compiled.objects.get(child)!.parent!;
+            const index = group.children.indexOf(child),
+              p = progress(at, t.start, t.duration, a.easing);
+            const count = Math.min(
+              group.children.length,
+              Math.floor(p * group.children.length + 1e-10),
+            );
+            s.visible =
+              a.type === "ShowIncreasingSubsets"
+                ? index < count
+                : count > 0 && index === count - 1;
           }
         }
         if (parent && (a.type === "FadeToColor" || a.type === "Indicate")) {
@@ -238,63 +366,205 @@ function evaluateFrame(
       }
       const p = progress(at, t.start, t.duration, a.easing),
         before = () => state(id, t.start, t.index);
-      if (["Add", "Create", "FadeIn", "GrowFromCenter", "GrowArrow", "GrowFromPoint", "GrowFromEdge", "SpinInFromNothing", "DrawBorderThenFill"].includes(a.type)) {
+      if (
+        [
+          "Add",
+          "Create",
+          "FadeIn",
+          "GrowFromCenter",
+          "GrowArrow",
+          "GrowFromPoint",
+          "GrowFromEdge",
+          "SpinInFromNothing",
+          "DrawBorderThenFill",
+        ].includes(a.type)
+      ) {
         delete s.fillReveal;
         delete s.strokeRange;
         delete s.arrowScale;
       }
       switch (a.type) {
-        case "Restore": {
-          const b=before(), target=state(id,a.at ?? 0,t.index);
-          s.position=lerp3(b.position,target.position,p);
-          for(const key of ["rotation","scale","matrix"] as const) s[key]=b[key].map((v,i)=>mix(v,target[key][i],p));
-          s.color=colorMix(b.color,target.color,p);s.opacity=mix(b.opacity,target.opacity,p);s.reveal=mix(b.reveal,target.reveal,p);
-          if(b.geometry.kind==="path" && target.geometry.kind==="path" && !b.geometry.breaks && !target.geometry.breaks) s.geometry=p===1?target.geometry:morphGeometry(b.geometry,target.geometry,p);
-          else if(p===1)s.geometry=target.geometry;
-          if(p===1){s.visible=target.visible;s.fillReveal=target.fillReveal;s.strokeRange=target.strokeRange;s.arrowScale=target.arrowScale;}
+        case "Swap": {
+          const b = before(),
+            target = state(a.to, t.start, t.index),
+            center = (v: State) =>
+              centerOf(
+                v.geometry.points.map((p) => transform3(p, localMatrix(v))),
+              );
+          s.position = add3(
+            b.position,
+            mul3(sub3(center(target), center(b)), p),
+          );
           break;
         }
+        case "FadeTransform":
+          s.opacity = before().opacity * (1 - p);
+          s.visible = p < 1;
+          break;
+        case "Restore": {
+          const b = before(),
+            target = state(id, a.at ?? 0, t.index);
+          s.position = lerp3(b.position, target.position, p);
+          for (const key of ["rotation", "scale", "matrix"] as const)
+            s[key] = b[key].map((v, i) => mix(v, target[key][i], p));
+          s.color = colorMix(b.color, target.color, p);
+          s.opacity = mix(b.opacity, target.opacity, p);
+          s.reveal = mix(b.reveal, target.reveal, p);
+          if (
+            b.geometry.kind === "path" &&
+            target.geometry.kind === "path" &&
+            !b.geometry.breaks &&
+            !target.geometry.breaks
+          )
+            s.geometry =
+              p === 1
+                ? target.geometry
+                : morphGeometry(b.geometry, target.geometry, p);
+          else if (p === 1) s.geometry = target.geometry;
+          if (p === 1) {
+            s.visible = target.visible;
+            s.fillReveal = target.fillReveal;
+            s.strokeRange = target.strokeRange;
+            s.arrowScale = target.arrowScale;
+          }
+          break;
+        }
+        case "ComplexHomotopy":
         case "Homotopy":
         case "ApplyPointwiseFunction":
         case "PhaseFlow": {
-          const b=before(), original=b.geometry.kind==="point"?b.geometry.points:resampleGeometry(b.geometry,128);
-          const map=(v:Vec3,alpha:number,clock:number):Vec3 => [0,1,2].map(i=>t.expressions?.[i]?.evaluate({...parametersAt(t.start),x:v[0],y:v[1],z:v[2],alpha,t:clock}) ?? 0) as Vec3;
-          const points=original.map(v=>{
-            if(a.type==="Homotopy")return map(v,p,t.start+p*t.duration);
-            if(a.type==="ApplyPointwiseFunction")return lerp3(v,map(v,1,t.start),p);
-            let point=v;const steps=a.steps??128,dt=(a.virtualTime??t.duration)*p/steps;
-            for(let i=0;i<steps;i++){
-              const clock=t.start+i*dt,k1=map(point,p,clock),k2=map(add3(point,mul3(k1,dt/2)),p,clock+dt/2),k3=map(add3(point,mul3(k2,dt/2)),p,clock+dt/2),k4=map(add3(point,mul3(k3,dt)),p,clock+dt);
-              point=add3(point,mul3(add3(add3(k1,mul3(k2,2)),add3(mul3(k3,2),k4)),dt/6));
-              if(!point.every(Number.isFinite))break;
+          const b = before(),
+            parameters = parametersAt(t.start),
+            key = JSON.stringify([p, parameters]);
+          const cached = deformationCache.get(t);
+          if (cached?.source === b.geometry && cached.key === key) {
+            s.geometry = cached.geometry;
+            break;
+          }
+          const original =
+            b.geometry.kind === "point"
+              ? b.geometry.points
+              : resampleGeometry(b.geometry, 128);
+          const map = (v: Vec3, alpha: number, clock: number): Vec3 =>
+            [0, 1, 2].map(
+              (i) =>
+                t.expressions?.[i]?.evaluate({
+                  ...parameters,
+                  x: v[0],
+                  y: v[1],
+                  z: v[2],
+                  alpha,
+                  t: clock,
+                }) ?? 0,
+            ) as Vec3;
+          const points = original.map((v) => {
+            if (a.type === "ComplexHomotopy") {
+              const [x, y] = t.complex!([v[0], v[1]], {
+                ...parameters,
+                alpha: p,
+                t: t.start + p * t.duration,
+              });
+              return [x, y, v[2]] as Vec3;
+            }
+            if (a.type === "Homotopy")
+              return map(v, p, t.start + p * t.duration);
+            if (a.type === "ApplyPointwiseFunction")
+              return lerp3(v, map(v, 1, t.start), p);
+            let point = v;
+            const steps = a.steps ?? 128,
+              dt = ((a.virtualTime ?? t.duration) * p) / steps;
+            for (let i = 0; i < steps; i++) {
+              const clock = t.start + i * dt,
+                k1 = map(point, p, clock),
+                k2 = map(add3(point, mul3(k1, dt / 2)), p, clock + dt / 2),
+                k3 = map(add3(point, mul3(k2, dt / 2)), p, clock + dt / 2),
+                k4 = map(add3(point, mul3(k3, dt)), p, clock + dt);
+              point = add3(
+                point,
+                mul3(
+                  add3(add3(k1, mul3(k2, 2)), add3(mul3(k3, 2), k4)),
+                  dt / 6,
+                ),
+              );
+              if (!point.every(Number.isFinite)) break;
             }
             return point;
           });
-          s.geometry={...b.geometry,functionPlot:undefined,indices:undefined,points};
+          s.geometry = {
+            ...b.geometry,
+            functionPlot: undefined,
+            indices: undefined,
+            points,
+          };
+          deformationCache.set(t, {
+            source: b.geometry,
+            key,
+            geometry: s.geometry,
+          });
           break;
         }
         case "ShowIncreasingSubsets":
-        case "ShowSubmobjectsOneByOne": s.visible = true; break;
+        case "ShowSubmobjectsOneByOne":
+          s.visible = true;
+          break;
         case "AddTextLetterByLetter":
         case "AddTextWordByWord":
         case "RemoveTextLetterByLetter": {
           const text = before().geometry.text ?? "";
-          const segments = a.type === "AddTextWordByWord" ? (text.match(/\s*\S+\s*/gu) ?? [])
-            : [...new Intl.Segmenter(undefined, {granularity:"grapheme"}).segment(text)].map(s=>s.segment);
-          const count = Math.floor(segments.length * (a.type === "RemoveTextLetterByLetter" ? 1-p : p) + 1e-10);
-          s.geometry = {...s.geometry, text: segments.slice(0,count).join("")};
-          s.visible = a.type !== "RemoveTextLetterByLetter" || p<1;
+          const segments =
+            a.type === "AddTextWordByWord"
+              ? (text.match(/\s*\S+\s*/gu) ?? [])
+              : [
+                  ...new Intl.Segmenter(undefined, {
+                    granularity: "grapheme",
+                  }).segment(text),
+                ].map((s) => s.segment);
+          const count = Math.floor(
+            segments.length *
+              (a.type === "RemoveTextLetterByLetter" ? 1 - p : p) +
+              1e-10,
+          );
+          s.geometry = {
+            ...s.geometry,
+            text: segments.slice(0, count).join(""),
+          };
+          s.visible = a.type !== "RemoveTextLetterByLetter" || p < 1;
           s.opacity = d.style?.opacity ?? 1;
           s.reveal = 1;
           break;
         }
         case "Blink":
-          s.opacity = before().opacity * (1 - Math.sin(Math.PI*p*(a.count ?? 1))**2);
+          s.opacity =
+            before().opacity *
+            (1 - Math.sin(Math.PI * p * (a.count ?? 1)) ** 2);
           break;
         case "ApplyWave": {
-          if (p===0 || p===1) break;
-          const b=before(), points=resampleGeometry(b.geometry,256), direction=unit3(a.direction ?? (native===1?[1,0,0]:[0,1,0]));
-          s.geometry={...b.geometry, functionPlot:undefined, indices:undefined, points:points.map((v,i)=>add3(v,mul3(direction,(a.amplitude ?? .3)*Math.sin(Math.PI*p)*Math.sin(2*Math.PI*((a.waves ?? 1)*i/(points.length-1)-p)))))};
+          if (p === 0 || p === 1) break;
+          const b = before(),
+            points = resampleGeometry(b.geometry, 256),
+            direction = unit3(
+              a.direction ?? (native === 1 ? [1, 0, 0] : [0, 1, 0]),
+            );
+          s.geometry = {
+            ...b.geometry,
+            functionPlot: undefined,
+            indices: undefined,
+            points: points.map((v, i) =>
+              add3(
+                v,
+                mul3(
+                  direction,
+                  (a.amplitude ?? 0.3) *
+                    Math.sin(Math.PI * p) *
+                    Math.sin(
+                      2 *
+                        Math.PI *
+                        (((a.waves ?? 1) * i) / (points.length - 1) - p),
+                    ),
+                ),
+              ),
+            ),
+          };
           break;
         }
         case "DrawBorderThenFill":
@@ -304,7 +574,8 @@ function evaluateFrame(
           s.fillReveal = Math.max(0, 2 * p - 1);
           break;
         case "ShowPassingFlash": {
-          const width = a.timeWidth ?? 0.2, head = p * (1 + width);
+          const width = a.timeWidth ?? 0.2,
+            head = p * (1 + width);
           s.visible = p > 0 && p < 1;
           s.opacity = d.style?.opacity ?? 1;
           s.reveal = 1;
@@ -316,14 +587,23 @@ function evaluateFrame(
         case "GrowFromPoint":
         case "GrowFromEdge":
         case "SpinInFromNothing": {
-          const b = before(), points = b.geometry.points.map(v => transform3(v, localMatrix(b)));
+          const b = before(),
+            points = b.geometry.points.map((v) =>
+              transform3(v, localMatrix(b)),
+            );
           let anchor = centerOf(points);
           if (a.type === "GrowArrow") anchor = points[0] ?? anchor;
-          if (a.type === "GrowFromPoint") anchor = nativeToCartesian(a.point as number[], o.space.type);
+          if (a.type === "GrowFromPoint")
+            anchor = nativeToCartesian(a.point as number[], o.space.type);
           if (a.type === "GrowFromEdge" && points.length) {
-            const axis = ["left", "right"].includes(a.edge) ? 0 : ["top", "bottom"].includes(a.edge) ? 1 : 2;
+            const axis = ["left", "right"].includes(a.edge)
+              ? 0
+              : ["top", "bottom"].includes(a.edge)
+                ? 1
+                : 2;
             anchor[axis] = ["left", "bottom", "back"].includes(a.edge)
-              ? Math.min(...points.map(v => v[axis])) : Math.max(...points.map(v => v[axis]));
+              ? Math.min(...points.map((v) => v[axis]))
+              : Math.max(...points.map((v) => v[axis]));
           }
           s.visible = true;
           s.reveal = 1;
@@ -334,7 +614,10 @@ function evaluateFrame(
           if (a.type === "SpinInFromNothing") {
             const spin = rotation((a.angle ?? 2 * Math.PI) * (1 - p));
             s.rotation = multiply4(spin, b.rotation);
-            s.position = add3(anchor, transform3(sub3(s.position, anchor), spin));
+            s.position = add3(
+              anchor,
+              transform3(sub3(s.position, anchor), spin),
+            );
           }
           break;
         }
@@ -350,7 +633,8 @@ function evaluateFrame(
           break;
         case "Uncreate":
           s.reveal = before().reveal * (1 - p);
-          if (s.fillReveal !== undefined) s.fillReveal = (before().fillReveal ?? before().reveal) * (1 - p);
+          if (s.fillReveal !== undefined)
+            s.fillReveal = (before().fillReveal ?? before().reveal) * (1 - p);
           s.visible = p < 1;
           break;
         case "FadeIn":
@@ -512,7 +796,12 @@ function evaluateFrame(
       opacity: s.opacity * (parent?.opacity ?? 1),
       reveal: s.reveal * (parent?.reveal ?? 1),
       ...(s.fillReveal !== undefined || parent?.fillReveal !== undefined
-        ? { fillReveal: (s.fillReveal ?? s.reveal) * (parent?.fillReveal ?? parent?.reveal ?? 1) } : {}),
+        ? {
+            fillReveal:
+              (s.fillReveal ?? s.reveal) *
+              (parent?.fillReveal ?? parent?.reveal ?? 1),
+          }
+        : {}),
       ...(s.strokeRange ? { strokeRange: s.strokeRange } : {}),
       ...(s.arrowScale !== undefined ? { arrowScale: s.arrowScale } : {}),
       color: s.color,
@@ -538,16 +827,18 @@ function evaluateFrame(
           ]
         : [{ space: activeSpace, opacity: 1 }];
   }
-  const transformsFor = (space: string, at = time, limit = compiled.tracks.length): SpaceTransform[] =>
-    compiled.tracks.slice(0, limit)
+  const transformsFor = (
+    space: string,
+    at = time,
+    limit = compiled.tracks.length,
+  ): SpaceTransform[] =>
+    compiled.tracks
+      .slice(0, limit)
       .filter(
         (t) =>
           "space" in t.event &&
           t.event.space === space &&
-          [
-            "ApplySpaceMatrix",
-            "ApplyComplexFunction",
-          ].includes(t.event.type) &&
+          ["ApplySpaceMatrix", "ApplyComplexFunction"].includes(t.event.type) &&
           at >= t.start,
       )
       .map((t) => {
@@ -569,66 +860,213 @@ function evaluateFrame(
           a.matrix.forEach((r, i) => r.forEach((v, j) => (m[i * 4 + j] = v)));
         return { matrix: m, progress: p };
       });
-  const spaces = compiled.document.spaces.filter(space => !onlyObject || compiled.objects.get(onlyObject)?.space.name === space.name).map((space) => ({
-    camera: compiled.tracks.flatMap((track) => {
-      const e = track.event;
-      return (e.type === "CameraZoom" || e.type === "CameraWindow" || e.type === "CameraMove" || e.type === "CameraOrbit") &&
-        e.space === space.name &&
-        track.start <= time
-        ? [
-            {
-              event: e,
-              progress: progress(time, track.start, track.duration, e.easing),
+  const spaces = compiled.document.spaces
+    .filter(
+      (space) =>
+        !onlyObject ||
+        compiled.objects.get(onlyObject)?.space.name === space.name,
+    )
+    .map((space) => ({
+      camera: compiled.tracks.flatMap((track) => {
+        const e = track.event;
+        return (e.type === "CameraZoom" ||
+          e.type === "CameraWindow" ||
+          e.type === "CameraMove" ||
+          e.type === "CameraOrbit") &&
+          e.space === space.name &&
+          track.start <= time
+          ? [
+              {
+                event: e,
+                progress: progress(time, track.start, track.duration, e.easing),
+              },
+            ]
+          : [];
+      }),
+      name: space.name,
+      type: space.type,
+      theme: theme(space.name),
+      transforms: transformsFor(space.name),
+      objects: space.objects
+        .filter((d) => !onlyObject || `${space.name}.${d.id}` === onlyObject)
+        .map((d) => {
+          const id = `${space.name}.${d.id}`,
+            original = world(id, time);
+          const transforms = transformsFor(space.name),
+            points =
+              original.geometry.kind === "path" &&
+              !original.geometry.breaks &&
+              original.geometry.points.length < 128 &&
+              transforms.some((t) => t.expression)
+                ? resampleGeometry(original.geometry)
+                : original.geometry.points;
+          const frame = {
+            ...original,
+            geometry: {
+              ...original.geometry,
+              points: points.map((p) => transformSpacePoint(p, transforms)),
             },
-          ]
-        : [];
-    }),
-    name: space.name,
-    type: space.type,
-    theme: theme(space.name),
-    transforms: transformsFor(space.name),
-    objects: space.objects.filter(d => !onlyObject || `${space.name}.${d.id}` === onlyObject).map((d) => {
-      const id = `${space.name}.${d.id}`,
-        original = world(id, time);
-      const transforms = transformsFor(space.name),
-        points =
-          original.geometry.kind === "path" &&
-          !original.geometry.breaks &&
-          original.geometry.points.length < 128 &&
-          transforms.some((t) => t.expression)
-            ? resampleGeometry(original.geometry)
-            : original.geometry.points;
-      const frame = {
-        ...original,
-        geometry: {
-          ...original.geometry,
-          points: points.map((p) => transformSpacePoint(p, transforms)),
-        },
-      };
+          };
+          if (
+            frame.geometry.points.some((p) =>
+              p.some((v) => !Number.isFinite(v)),
+            ) ||
+            frame.matrix.some((v) => !Number.isFinite(v))
+          ) {
+            diagnostics.push({
+              path: compiled.objects.get(id)!.path,
+              message:
+                "Non-finite geometry sample; object omitted for this frame",
+            });
+            return {
+              ...frame,
+              visible: false,
+              geometry: { ...frame.geometry, points: [], indices: [] },
+            };
+          }
+          return frame;
+        }),
+    }));
+  if (!onlyObject)
+    for (const track of compiled.tracks) {
+      const a = track.event;
       if (
-        frame.geometry.points.some((p) => p.some((v) => !Number.isFinite(v))) ||
-        frame.matrix.some((v) => !Number.isFinite(v))
-      ) {
-        diagnostics.push({
-          path: compiled.objects.get(id)!.path,
-          message: "Non-finite geometry sample; object omitted for this frame",
-        });
-        return {
-          ...frame,
-          visible: false,
-          geometry: { ...frame.geometry, points: [], indices: [] },
-        };
+        !("object" in a) ||
+        !["Flash", "FocusOn", "Circumscribe", "TransformFromCopy"].includes(
+          a.type,
+        ) ||
+        time < track.start ||
+        time >= track.start + track.duration
+      )
+        continue;
+      const p = progress(time, track.start, track.duration, a.easing),
+        source = world(
+          a.object,
+          a.type === "TransformFromCopy" ? track.start : time,
+          a.type === "TransformFromCopy" ? track.index : compiled.tracks.length,
+        );
+      if (
+        !source.geometry.points.length ||
+        !source.geometry.points.every((v) => v.every(Number.isFinite))
+      )
+        continue;
+      const spaceName = compiled.objects.get(a.object)!.space.name,
+        space = spaces.find((s) => s.name === spaceName)!;
+      let geometry: Geometry,
+        color = source.color,
+        opacity = source.opacity,
+        reveal = 1,
+        fillOpacity = source.style.fillOpacity ?? 0.15;
+      if (a.type === "TransformFromCopy") {
+        const target = world(a.to, track.start, track.index);
+        if (!target.geometry.points.length) continue;
+        geometry = morphGeometry(source.geometry, target.geometry, p);
+        color = colorMix(source.color, target.color, p);
+        opacity = mix(
+          source.opacity,
+          compiled.objects.get(a.to)!.definition.style?.opacity ?? 1,
+          p,
+        );
+        fillOpacity = mix(fillOpacity, target.style.fillOpacity ?? 0.15, p);
+      } else {
+        const center = centerOf(source.geometry.points);
+        color = (a as { color?: string }).color ?? "#f4b66b";
+        if (a.type === "Circumscribe") {
+          const pad = a.padding ?? 0.15,
+            min = [0, 1].map(
+              (i) => Math.min(...source.geometry.points.map((v) => v[i])) - pad,
+            ),
+            max = [0, 1].map(
+              (i) => Math.max(...source.geometry.points.map((v) => v[i])) + pad,
+            );
+          geometry = {
+            kind: "path",
+            closed: true,
+            points: [
+              [min[0], min[1], 0],
+              [max[0], min[1], 0],
+              [max[0], max[1], 0],
+              [min[0], max[1], 0],
+            ],
+          };
+          reveal = Math.min(1, p * 2);
+          opacity *= Math.min(1, (1 - p) * 5);
+          fillOpacity = 0;
+        } else if (a.type === "Flash") {
+          const count = a.numLines ?? 12,
+            r = a.radius ?? 0.3,
+            length = a.lineLength ?? 0.3,
+            points: Vec3[] = [],
+            breaks: number[] = [];
+          for (let i = 0; i < count; i++) {
+            const angle = (2 * Math.PI * i) / count;
+            breaks.push(points.length);
+            for (const d of [r + p * length, r + p * length + length * (1 - p)])
+              points.push([
+                center[0] + d * Math.cos(angle),
+                center[1] + d * Math.sin(angle),
+                0,
+              ]);
+          }
+          geometry = { kind: "path", points, breaks };
+          opacity *= Math.sin(Math.PI * p);
+          fillOpacity = 0;
+        } else if (a.type === "FocusOn") {
+          const radius = (a.radius ?? 3) * (1 - p);
+          geometry = {
+            kind: "path",
+            closed: true,
+            points: Array.from(
+              { length: 96 },
+              (_, i) =>
+                [
+                  center[0] + radius * Math.cos((i * 2 * Math.PI) / 96),
+                  center[1] + radius * Math.sin((i * 2 * Math.PI) / 96),
+                  0,
+                ] as Vec3,
+            ),
+          };
+          opacity *= Math.sin(Math.PI * p);
+          fillOpacity = 0.2;
+        } else continue;
       }
-      return frame;
-    }),
-  }));
+      geometry = {
+        ...geometry,
+        points: geometry.points.map((v) =>
+          transformSpacePoint(v, space.transforms),
+        ),
+      };
+      if (geometry.points.some((v) => v.some((x) => !Number.isFinite(x)))) {
+        diagnostics.push({
+          path: track.path,
+          message: "Non-finite animation overlay; omitted for this frame",
+        });
+        continue;
+      }
+      space.objects.push({
+        id: `${a.object}:overlay:${track.index}`,
+        interactive: false,
+        type: "Polyline",
+        geometry,
+        matrix: identity4(),
+        visible: source.visible,
+        opacity,
+        reveal,
+        color,
+        style: { strokeWidth: source.style.strokeWidth ?? 2, fillOpacity },
+        selected: false,
+      });
+    }
   return {
     time,
     duration: compiled.duration,
     parameters: parametersAt(time),
     spaces,
     activeSpace,
-    pictureInPictures: (onlyObject ? [] : [...compiled.objects.values()]).flatMap((o) => {
+    pictureInPictures: (onlyObject
+      ? []
+      : [...compiled.objects.values()]
+    ).flatMap((o) => {
       const d = o.definition;
       if (d.type !== "PictureInPicture") return [];
       const ownerLayer = layers.find((l) => l.space === o.space.name);
@@ -652,11 +1090,20 @@ function evaluateFrame(
   };
 }
 
-export function evaluateDocument(compiled: CompiledScene, time: number, overrides: Record<string, number> = {}): DocumentFrame {
+export function evaluateDocument(
+  compiled: CompiledScene,
+  time: number,
+  overrides: Record<string, number> = {},
+): DocumentFrame {
   return evaluateFrame(compiled, time, overrides);
 }
 /** Internal interaction evaluator: world() resolves the target's dependencies lazily. */
-export function evaluateDragTarget(compiled: CompiledScene, time: number, overrides: Record<string, number>, id: string) {
+export function evaluateDragTarget(
+  compiled: CompiledScene,
+  time: number,
+  overrides: Record<string, number>,
+  id: string,
+) {
   const frame = evaluateFrame(compiled, time, overrides, id);
   return { object: frame.spaces[0]?.objects[0], parameters: frame.parameters };
 }

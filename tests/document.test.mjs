@@ -380,7 +380,9 @@ test("dependencies inside a transformed group inherit parent exactly once", () =
 });
 test("every advertised object compiles and evaluates finite geometry", () => {
   const definitions = {
-    Table:{entries:[['a','b'],['c','d']]}, MathTable:{entries:[['x','y']]}, DecimalTable:{entries:[[1,2]]},
+    ArcPolygon:{points:[[0,0],[1,0],[0,1]],angles:[0,.5,0]},AnimatedBoundary:{target:"s.l"},
+    Union:{operands:["s.first","s.second"]},Difference:{operands:["s.first","s.second"]},Intersection:{operands:["s.first","s.second"]},Exclusion:{operands:["s.first","s.second"]},
+    ImageMobject:{source:"./test.png"},ImageSequence:{sources:["./a.png","./b.png"]},
     Matrix:{entries:[['x','y']]},DecimalMatrix:{entries:[[1,2]]},IntegerMatrix:{entries:[[1,2]]},
     BarChart:{values:[1,2]},SampleSpace:{probabilities:[.5,.5]},Graph:{vertices:['a','b'],edges:[['a','b']]},DiGraph:{vertices:['a','b'],edges:[['a','b']]},
     Point: { at: [0, 0] },
@@ -476,6 +478,7 @@ test("every advertised object compiles and evaluates finite geometry", () => {
           type: dim,
           objects: [
             ...(solids.includes(type) ? [] : [line]),
+            ...(["Union","Difference","Intersection","Exclusion"].includes(type)?[{id:"first",type:"Square",size:2},{id:"second",type:"Square",size:2,position:[1,0]}]:[]),
             ...(type === "TracedPath" ? [{ id: "source", type: "Point", at: ["t", "sin(t)"] }] : []),
             { id: "object", type, ...definitions[type] },
           ],

@@ -211,7 +211,7 @@
               "maxLength": 10000
             },
             "type": {
-              "const": "Table"
+              "const": "ArcPolygon"
             },
             "position": {
               "type": "array",
@@ -263,7 +263,7 @@
               "required": [],
               "additionalProperties": false
             },
-            "entries": {
+            "points": {
               "type": "array",
               "items": {
                 "type": "array",
@@ -280,29 +280,33 @@
                   ]
                 },
                 "minItems": 1,
-                "maxItems": 32
+                "maxItems": 3
               },
-              "minItems": 1,
-              "maxItems": 32
+              "minItems": 3,
+              "maxItems": 128
             },
-            "cellWidth": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "cellHeight": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "decimals": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 12
+            "angles": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                ]
+              },
+              "minItems": 3,
+              "maxItems": 128
             }
           },
           "required": [
             "id",
             "type",
-            "entries"
+            "points"
           ],
           "additionalProperties": false
         },
@@ -318,7 +322,7 @@
               "maxLength": 10000
             },
             "type": {
-              "const": "MathTable"
+              "const": "AnimatedBoundary"
             },
             "position": {
               "type": "array",
@@ -370,46 +374,33 @@
               "required": [],
               "additionalProperties": false
             },
-            "entries": {
+            "target": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "period": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "colors": {
               "type": "array",
               "items": {
-                "type": "array",
-                "items": {
-                  "anyOf": [
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "string",
-                      "minLength": 1,
-                      "maxLength": 2000
-                    }
-                  ]
-                },
-                "minItems": 1,
-                "maxItems": 32
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
               },
               "minItems": 1,
               "maxItems": 32
             },
-            "cellWidth": {
+            "timeWidth": {
               "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "cellHeight": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "decimals": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 12
+              "exclusiveMinimum": 0,
+              "maximum": 1
             }
           },
           "required": [
             "id",
             "type",
-            "entries"
+            "target"
           ],
           "additionalProperties": false
         },
@@ -425,7 +416,7 @@
               "maxLength": 10000
             },
             "type": {
-              "const": "DecimalTable"
+              "const": "Union"
             },
             "position": {
               "type": "array",
@@ -477,46 +468,483 @@
               "required": [],
               "additionalProperties": false
             },
-            "entries": {
+            "operands": {
               "type": "array",
               "items": {
-                "type": "array",
-                "items": {
-                  "anyOf": [
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "string",
-                      "minLength": 1,
-                      "maxLength": 2000
-                    }
-                  ]
-                },
-                "minItems": 1,
-                "maxItems": 32
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
               },
-              "minItems": 1,
+              "minItems": 2,
               "maxItems": 32
-            },
-            "cellWidth": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "cellHeight": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "decimals": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 12
             }
           },
           "required": [
             "id",
             "type",
-            "entries"
+            "operands"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "caption": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "type": {
+              "const": "Difference"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 3
+            },
+            "style": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "opacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "fillOpacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "strokeWidth": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "pointSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "fontSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            },
+            "operands": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+              },
+              "minItems": 2,
+              "maxItems": 32
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "operands"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "caption": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "type": {
+              "const": "Intersection"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 3
+            },
+            "style": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "opacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "fillOpacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "strokeWidth": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "pointSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "fontSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            },
+            "operands": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+              },
+              "minItems": 2,
+              "maxItems": 32
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "operands"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "caption": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "type": {
+              "const": "Exclusion"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 3
+            },
+            "style": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "opacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "fillOpacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "strokeWidth": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "pointSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "fontSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            },
+            "operands": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+              },
+              "minItems": 2,
+              "maxItems": 32
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "operands"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "caption": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "type": {
+              "const": "ImageMobject"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 3
+            },
+            "style": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "opacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "fillOpacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "strokeWidth": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "pointSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "fontSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            },
+            "source": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000000,
+              "pattern": "^(https?://|data:image/(png|jpeg|webp|gif);base64,|[^:]+$)"
+            },
+            "width": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              ]
+            },
+            "height": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "caption": {
+              "type": "string",
+              "maxLength": 10000
+            },
+            "type": {
+              "const": "ImageSequence"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000
+                  }
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 3
+            },
+            "style": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "opacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "fillOpacity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "strokeWidth": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "pointSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "fontSize": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000000,
+                "pattern": "^(https?://|data:image/(png|jpeg|webp|gif);base64,|[^:]+$)"
+              },
+              "minItems": 1,
+              "maxItems": 128
+            },
+            "fps": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "loop": {
+              "type": "boolean"
+            },
+            "width": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              ]
+            },
+            "height": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2000
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "type",
+            "sources"
           ],
           "additionalProperties": false
         },
@@ -7806,6 +8234,62 @@
           "type": "object",
           "properties": {
             "type": {
+              "const": "ComplexHomotopy"
+            },
+            "object": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "easing": {
+              "enum": [
+                "linear",
+                "smooth",
+                "ease-in",
+                "ease-out",
+                "smoother",
+                "sine-in",
+                "sine-out",
+                "sine-in-out",
+                "cubic-in",
+                "cubic-out",
+                "cubic-in-out",
+                "quart-in",
+                "quart-out",
+                "quart-in-out",
+                "quint-in",
+                "quint-out",
+                "quint-in-out",
+                "expo-in",
+                "expo-out",
+                "expo-in-out",
+                "circ-in",
+                "circ-out",
+                "circ-in-out"
+              ]
+            },
+            "expression": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "object",
+            "expression"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
               "const": "ApplyPointwiseFunction"
             },
             "object": {
@@ -7947,6 +8431,120 @@
             "type",
             "object",
             "expressions"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Swap"
+            },
+            "object": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "easing": {
+              "enum": [
+                "linear",
+                "smooth",
+                "ease-in",
+                "ease-out",
+                "smoother",
+                "sine-in",
+                "sine-out",
+                "sine-in-out",
+                "cubic-in",
+                "cubic-out",
+                "cubic-in-out",
+                "quart-in",
+                "quart-out",
+                "quart-in-out",
+                "quint-in",
+                "quint-out",
+                "quint-in-out",
+                "expo-in",
+                "expo-out",
+                "expo-in-out",
+                "circ-in",
+                "circ-out",
+                "circ-in-out"
+              ]
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            }
+          },
+          "required": [
+            "type",
+            "object",
+            "to"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "FadeTransform"
+            },
+            "object": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "easing": {
+              "enum": [
+                "linear",
+                "smooth",
+                "ease-in",
+                "ease-out",
+                "smoother",
+                "sine-in",
+                "sine-out",
+                "sine-in-out",
+                "cubic-in",
+                "cubic-out",
+                "cubic-in-out",
+                "quart-in",
+                "quart-out",
+                "quart-in-out",
+                "quint-in",
+                "quint-out",
+                "quint-in-out",
+                "expo-in",
+                "expo-out",
+                "expo-in-out",
+                "circ-in",
+                "circ-out",
+                "circ-in-out"
+              ]
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            }
+          },
+          "required": [
+            "type",
+            "object",
+            "to"
           ],
           "additionalProperties": false
         },
@@ -8795,6 +9393,252 @@
           "type": "object",
           "properties": {
             "type": {
+              "const": "Flash"
+            },
+            "object": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "easing": {
+              "enum": [
+                "linear",
+                "smooth",
+                "ease-in",
+                "ease-out",
+                "smoother",
+                "sine-in",
+                "sine-out",
+                "sine-in-out",
+                "cubic-in",
+                "cubic-out",
+                "cubic-in-out",
+                "quart-in",
+                "quart-out",
+                "quart-in-out",
+                "quint-in",
+                "quint-out",
+                "quint-in-out",
+                "expo-in",
+                "expo-out",
+                "expo-in-out",
+                "circ-in",
+                "circ-out",
+                "circ-in-out"
+              ]
+            },
+            "color": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "lineLength": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "numLines": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 64
+            }
+          },
+          "required": [
+            "type",
+            "object"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "FocusOn"
+            },
+            "object": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "easing": {
+              "enum": [
+                "linear",
+                "smooth",
+                "ease-in",
+                "ease-out",
+                "smoother",
+                "sine-in",
+                "sine-out",
+                "sine-in-out",
+                "cubic-in",
+                "cubic-out",
+                "cubic-in-out",
+                "quart-in",
+                "quart-out",
+                "quart-in-out",
+                "quint-in",
+                "quint-out",
+                "quint-in-out",
+                "expo-in",
+                "expo-out",
+                "expo-in-out",
+                "circ-in",
+                "circ-out",
+                "circ-in-out"
+              ]
+            },
+            "color": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "type",
+            "object"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Circumscribe"
+            },
+            "object": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "easing": {
+              "enum": [
+                "linear",
+                "smooth",
+                "ease-in",
+                "ease-out",
+                "smoother",
+                "sine-in",
+                "sine-out",
+                "sine-in-out",
+                "cubic-in",
+                "cubic-out",
+                "cubic-in-out",
+                "quart-in",
+                "quart-out",
+                "quart-in-out",
+                "quint-in",
+                "quint-out",
+                "quint-in-out",
+                "expo-in",
+                "expo-out",
+                "expo-in-out",
+                "circ-in",
+                "circ-out",
+                "circ-in-out"
+              ]
+            },
+            "color": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "padding": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "type",
+            "object"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "TransformFromCopy"
+            },
+            "object": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "easing": {
+              "enum": [
+                "linear",
+                "smooth",
+                "ease-in",
+                "ease-out",
+                "smoother",
+                "sine-in",
+                "sine-out",
+                "sine-in-out",
+                "cubic-in",
+                "cubic-out",
+                "cubic-in-out",
+                "quart-in",
+                "quart-out",
+                "quart-in-out",
+                "quint-in",
+                "quint-out",
+                "quint-in-out",
+                "expo-in",
+                "expo-out",
+                "expo-in-out",
+                "circ-in",
+                "circ-out",
+                "circ-in-out"
+              ]
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+            }
+          },
+          "required": [
+            "type",
+            "object",
+            "to"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
               "const": "Transform"
             },
             "object": {
@@ -8902,6 +9746,64 @@
             "type",
             "object",
             "to"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "CyclicReplace"
+            },
+            "objects": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+              },
+              "minItems": 2,
+              "maxItems": 128,
+              "uniqueItems": true
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "easing": {
+              "enum": [
+                "linear",
+                "smooth",
+                "ease-in",
+                "ease-out",
+                "smoother",
+                "sine-in",
+                "sine-out",
+                "sine-in-out",
+                "cubic-in",
+                "cubic-out",
+                "cubic-in-out",
+                "quart-in",
+                "quart-out",
+                "quart-in-out",
+                "quint-in",
+                "quint-out",
+                "quint-in-out",
+                "expo-in",
+                "expo-out",
+                "expo-in-out",
+                "circ-in",
+                "circ-out",
+                "circ-in-out"
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "objects"
           ],
           "additionalProperties": false
         },
@@ -9373,6 +10275,2098 @@
             "type",
             "space",
             "x"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "LaggedStartMap"
+            },
+            "objects": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+              },
+              "minItems": 1,
+              "maxItems": 2000
+            },
+            "animation": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Add"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Create"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Uncreate"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "FadeIn"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "FadeOut"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "MoveTo"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "to": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    },
+                    "from": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "to"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Shift"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "by": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "by"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Rotate"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "angle": {
+                      "type": "number"
+                    },
+                    "axis": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 3,
+                      "maxItems": 3
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "angle"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Scale"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "factor": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "factor"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "FadeToColor"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "color"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "ApplyMatrix"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "matrix": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 1,
+                        "maxItems": 3
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "matrix"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "MoveAlongPath"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "path": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "path"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Indicate"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "factor": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Wiggle"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "angle": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Homotopy"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "expressions": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "expressions"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "ComplexHomotopy"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "expression": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "expression"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "ApplyPointwiseFunction"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "expressions": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "expressions"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "PhaseFlow"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "expressions": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    },
+                    "steps": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 512
+                    },
+                    "virtualTime": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "expressions"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Swap"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "to": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "to"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "FadeTransform"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "to": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "to"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Restore"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "at": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Blink"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "count": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "ApplyWave"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "amplitude": {
+                      "type": "number"
+                    },
+                    "waves": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "direction": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 3,
+                      "maxItems": 3
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "AddTextLetterByLetter"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "RemoveTextLetterByLetter"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "AddTextWordByWord"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "ShowIncreasingSubsets"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "ShowSubmobjectsOneByOne"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "GrowFromCenter"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "GrowArrow"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "GrowFromPoint"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "point": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2000
+                          }
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 3
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "point"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "GrowFromEdge"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "edge": {
+                      "enum": [
+                        "left",
+                        "right",
+                        "top",
+                        "bottom",
+                        "front",
+                        "back"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "edge"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "SpinInFromNothing"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "angle": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "DrawBorderThenFill"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "ShowPassingFlash"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "timeWidth": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Flash"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "radius": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "lineLength": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "numLines": {
+                      "type": "integer",
+                      "minimum": 2,
+                      "maximum": 64
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "FocusOn"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "radius": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Circumscribe"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "padding": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "TransformFromCopy"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "to": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "to"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "Transform"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "to": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "to"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "ReplacementTransform"
+                    },
+                    "duration": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "easing": {
+                      "enum": [
+                        "linear",
+                        "smooth",
+                        "ease-in",
+                        "ease-out",
+                        "smoother",
+                        "sine-in",
+                        "sine-out",
+                        "sine-in-out",
+                        "cubic-in",
+                        "cubic-out",
+                        "cubic-in-out",
+                        "quart-in",
+                        "quart-out",
+                        "quart-in-out",
+                        "quint-in",
+                        "quint-out",
+                        "quint-in-out",
+                        "expo-in",
+                        "expo-out",
+                        "expo-in-out",
+                        "circ-in",
+                        "circ-out",
+                        "circ-in-out"
+                      ]
+                    },
+                    "to": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z_0-9]*\\.[A-Za-z_][A-Za-z_0-9]*$"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "to"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "start": {
+              "type": "number",
+              "minimum": 0
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0
+            },
+            "lagRatio": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "type",
+            "objects",
+            "animation"
           ],
           "additionalProperties": false
         },

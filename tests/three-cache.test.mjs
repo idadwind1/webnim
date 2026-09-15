@@ -174,50 +174,237 @@ test("3D camera redraws retain resources; animation and hover update in place", 
     );
     adapter.draw({ ...smaller, objects: [] }, null);
     assert.equal(nodes().length, 0, "removed objects release cached nodes");
-    const fillDoc = compileScene({version:1,spaces:[{name:"solid",type:"space3d",objects:[{id:"square",type:"Square",size:2,style:{opacity:.8,fillOpacity:.5}}]}],events:[{type:"Create",object:"solid.square",duration:1},{type:"Uncreate",object:"solid.square",start:2,duration:1}]});
+    const fillDoc = compileScene({
+      version: 1,
+      spaces: [
+        {
+          name: "solid",
+          type: "space3d",
+          objects: [
+            {
+              id: "square",
+              type: "Square",
+              size: 2,
+              style: { opacity: 0.8, fillOpacity: 0.5 },
+            },
+          ],
+        },
+      ],
+      events: [
+        { type: "Create", object: "solid.square", duration: 1 },
+        { type: "Uncreate", object: "solid.square", start: 2, duration: 1 },
+      ],
+    });
     let fillGeometry;
-    for (const time of [.25,.5,.999,1,2.5,2.999]) {
-      const frame = evaluateDocument(fillDoc,time).spaces[0];
-      adapter.draw(frame,null);
-      const fill = nodes().find(n => n.userData.id === "solid.square" && n.isMesh);
+    for (const time of [0.25, 0.5, 0.999, 1, 2.5, 2.999]) {
+      const frame = evaluateDocument(fillDoc, time).spaces[0];
+      adapter.draw(frame, null);
+      const fill = nodes().find(
+        (n) => n.userData.id === "solid.square" && n.isMesh,
+      );
       assert.ok(fill, "partial Create has a fill mesh");
-      assert.ok(Math.abs(fill.material.opacity - .4 * frame.objects[0].reveal) < 1e-9);
-      if (fillGeometry) assert.equal(fill.geometry,fillGeometry,"reveal reuses the fill buffer");
-      fillGeometry=fill.geometry;
+      assert.ok(
+        Math.abs(fill.material.opacity - 0.4 * frame.objects[0].reveal) < 1e-9,
+      );
+      if (fillGeometry)
+        assert.equal(
+          fill.geometry,
+          fillGeometry,
+          "reveal reuses the fill buffer",
+        );
+      fillGeometry = fill.geometry;
     }
-    const border = compileScene({version:1,spaces:fillDoc.document.spaces,events:[{type:"DrawBorderThenFill",object:"solid.square",duration:2}]});
-    for(const [time,alpha] of [[0.5,0],[1,0],[1.5,0.2],[2,0.4]]) {
-      adapter.draw(evaluateDocument(border,time).spaces[0],null);
-      const fill=nodes().find(n=>n.userData.id==="solid.square"&&n.isMesh);
-      assert.ok(Math.abs((fill?.material.opacity??0)-alpha)<1e-9,"3D border completes before filling");
+    const border = compileScene({
+      version: 1,
+      spaces: fillDoc.document.spaces,
+      events: [
+        { type: "DrawBorderThenFill", object: "solid.square", duration: 2 },
+      ],
+    });
+    for (const [time, alpha] of [
+      [0.5, 0],
+      [1, 0],
+      [1.5, 0.2],
+      [2, 0.4],
+    ]) {
+      adapter.draw(evaluateDocument(border, time).spaces[0], null);
+      const fill = nodes().find(
+        (n) => n.userData.id === "solid.square" && n.isMesh,
+      );
+      assert.ok(
+        Math.abs((fill?.material.opacity ?? 0) - alpha) < 1e-9,
+        "3D border completes before filling",
+      );
     }
-    const flash = compileScene({version:1,spaces:fillDoc.document.spaces,events:[{type:"ShowPassingFlash",object:"solid.square",duration:2}]});
-    adapter.draw(evaluateDocument(flash,1).spaces[0],null);
-    assert.ok(!nodes().some(n=>n.userData.id==="solid.square"&&n.isMesh),"3D flash has no fill mesh");
-    const growingArrow = compileScene({version:1,spaces:[{name:"s",type:"space3d",objects:[{id:"arrow",type:"Arrow",from:[0,0,0],to:[2,0,0]}]}],events:[{type:"GrowArrow",object:"s.arrow",duration:1}]});
-    adapter.draw(evaluateDocument(growingArrow,0.5).spaces[0],null);
-    const head=nodes().find(n=>n.userData.id==="s.arrow"&&n.isMesh);
-    assert.equal(head.scale.x,0.5,"3D arrowhead grows with its shaft");
-    assert.ok(Math.abs(head.position.x-0.95)<1e-9,"growing arrowhead stays attached to its tip");
-    const helpers = compileScene({version:1, parameters:{a:1}, spaces:[{name:"s",type:"space3d",objects:[
-      {id:"field",type:"ArrowVectorField",expressions:["-a*y","a*x",0],xRange:[-2,2],yRange:[-2,2]},
-      {id:"double",type:"CurvedDoubleArrow",from:[-2,0,1],to:[2,0,1]},
-      {id:"dash",type:"DashedLine",from:[-2,0,-1],to:[2,0,-1]},
-      {id:"flow",type:"StreamLines",expressions:[1,0,0],seeds:[[0,-1,0],[0,1,0]],step:1,steps:1}
-    ]}]});
-    const helpersFrame = evaluateDocument(helpers,0).spaces[0];
-    adapter.draw(helpersFrame,null);
-    const fieldNodes = nodes().filter(n=>n.userData.id==="s.field");
-    assert.equal(fieldNodes.length,2,"3D vector field batches shafts and heads in two draw nodes");
-    assert.ok(fieldNodes.every(n=>n.isLineSegments));
-    assert.equal(nodes().filter(n=>n.userData.id==="s.double"&&n.isMesh).length,2,"both arrowheads are rendered");
-    const flow = nodes().find(n=>n.userData.id==="s.flow");
-    assert.equal(flow.geometry.getAttribute("position").count,4,"two separate segments without a bridge");
+    const flash = compileScene({
+      version: 1,
+      spaces: fillDoc.document.spaces,
+      events: [
+        { type: "ShowPassingFlash", object: "solid.square", duration: 2 },
+      ],
+    });
+    adapter.draw(evaluateDocument(flash, 1).spaces[0], null);
+    assert.ok(
+      !nodes().some((n) => n.userData.id === "solid.square" && n.isMesh),
+      "3D flash has no fill mesh",
+    );
+    const growingArrow = compileScene({
+      version: 1,
+      spaces: [
+        {
+          name: "s",
+          type: "space3d",
+          objects: [
+            { id: "arrow", type: "Arrow", from: [0, 0, 0], to: [2, 0, 0] },
+          ],
+        },
+      ],
+      events: [{ type: "GrowArrow", object: "s.arrow", duration: 1 }],
+    });
+    adapter.draw(evaluateDocument(growingArrow, 0.5).spaces[0], null);
+    const head = nodes().find((n) => n.userData.id === "s.arrow" && n.isMesh);
+    assert.equal(head.scale.x, 0.5, "3D arrowhead grows with its shaft");
+    assert.ok(
+      Math.abs(head.position.x - 0.95) < 1e-9,
+      "growing arrowhead stays attached to its tip",
+    );
+    const helpers = compileScene({
+      version: 1,
+      parameters: { a: 1 },
+      spaces: [
+        {
+          name: "s",
+          type: "space3d",
+          objects: [
+            {
+              id: "field",
+              type: "ArrowVectorField",
+              expressions: ["-a*y", "a*x", 0],
+              xRange: [-2, 2],
+              yRange: [-2, 2],
+            },
+            {
+              id: "double",
+              type: "CurvedDoubleArrow",
+              from: [-2, 0, 1],
+              to: [2, 0, 1],
+            },
+            {
+              id: "dash",
+              type: "DashedLine",
+              from: [-2, 0, -1],
+              to: [2, 0, -1],
+            },
+            {
+              id: "flow",
+              type: "StreamLines",
+              expressions: [1, 0, 0],
+              seeds: [
+                [0, -1, 0],
+                [0, 1, 0],
+              ],
+              step: 1,
+              steps: 1,
+            },
+          ],
+        },
+      ],
+    });
+    const helpersFrame = evaluateDocument(helpers, 0).spaces[0];
+    adapter.draw(helpersFrame, null);
+    const fieldNodes = nodes().filter((n) => n.userData.id === "s.field");
+    assert.equal(
+      fieldNodes.length,
+      2,
+      "3D vector field batches shafts and heads in two draw nodes",
+    );
+    assert.ok(fieldNodes.every((n) => n.isLineSegments));
+    assert.equal(
+      nodes().filter((n) => n.userData.id === "s.double" && n.isMesh).length,
+      2,
+      "both arrowheads are rendered",
+    );
+    const flow = nodes().find((n) => n.userData.id === "s.flow");
+    assert.equal(
+      flow.geometry.getAttribute("position").count,
+      4,
+      "two separate segments without a bridge",
+    );
     assert.ok(flow.isLineSegments);
-    adapter.draw(evaluateDocument(helpers,0,{a:0.2}).spaces[0],null);
-    assert.deepEqual(nodes().filter(n=>n.userData.id==="s.field"),fieldNodes,"live field updates retain resources");
-    adapter.draw({...helpersFrame,objects:[]},null);
-    assert.equal(nodes().length,0,"compound path nodes are released when removed");
+    adapter.draw(evaluateDocument(helpers, 0, { a: 0.2 }).spaces[0], null);
+    assert.deepEqual(
+      nodes().filter((n) => n.userData.id === "s.field"),
+      fieldNodes,
+      "live field updates retain resources",
+    );
+    adapter.draw({ ...helpersFrame, objects: [] }, null);
+    assert.equal(
+      nodes().length,
+      0,
+      "compound path nodes are released when removed",
+    );
+    const copy = compileScene({
+      version: 1,
+      spaces: [
+        {
+          name: "s",
+          type: "space3d",
+          objects: [
+            { id: "a", type: "Square", position: [-2, 0, 0] },
+            { id: "b", type: "Square", position: [2, 0, 0] },
+          ],
+        },
+      ],
+      events: [
+        {
+          type: "TransformFromCopy",
+          object: "s.a",
+          to: "s.b",
+          start: 1,
+          duration: 2,
+        },
+      ],
+    });
+    const copyFrame = (t) => evaluateDocument(copy, t).spaces[0];
+    adapter.draw(copyFrame(1.5), null);
+    const overlayNodes = nodes().filter((n) =>
+      n.userData.id?.includes(":overlay:"),
+    );
+    assert.ok(overlayNodes.length > 0, "copy renders temporary 3D geometry");
+    const resources = new Set(
+      overlayNodes.flatMap((n) => [n.geometry, ...[n.material].flat()]),
+    );
+    const disposed = new Map([...resources].map((r) => [r, 0]));
+    for (const r of resources)
+      r.addEventListener("dispose", () => disposed.set(r, disposed.get(r) + 1));
+    adapter.draw(copyFrame(2), null);
+    adapter.draw(copyFrame(2), null);
+    assert.deepEqual(
+      nodes().filter((n) => n.userData.id?.includes(":overlay:")),
+      overlayNodes,
+      "copy updates retain draw nodes",
+    );
+    assert.ok(
+      [...disposed.values()].every((n) => n === 0),
+      "copy updates retain GPU resources",
+    );
+    adapter.draw(copyFrame(3), null);
+    assert.ok(
+      !nodes().some((n) => n.userData.id?.includes(":overlay:")),
+      "completed copy removes overlay",
+    );
+    assert.ok(
+      [...disposed.values()].every((n) => n === 1),
+      "completed copy disposes each resource once",
+    );
+    adapter.draw(copyFrame(2), null);
+    const sought = nodes().filter((n) => n.userData.id?.includes(":overlay:"));
+    assert.ok(sought.length > 0, "seeking recreates copy overlay");
+    adapter.draw(copyFrame(0), null);
+    assert.ok(
+      !nodes().some((n) => n.userData.id?.includes(":overlay:")),
+      "seeking before copy removes overlay",
+    );
   } finally {
     adapter?.dispose();
     if (saved) Object.defineProperty(globalThis, "window", saved);

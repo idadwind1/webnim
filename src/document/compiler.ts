@@ -34,6 +34,7 @@ export type LeafEvent =
       SceneEvent,
       {
         type:
+          | "CyclicReplace"
           | "AnimateParameter"
           | "SwitchSpace"
           | "CameraMove"
@@ -52,6 +53,7 @@ export interface CompiledTrack {
   index: number;
   writes: string[];
   expressions?: MathExpression[];
+  complex?: ReturnType<typeof compileComplex>;
 }
 export interface CompiledScene {
   readonly document: SceneDocument;
@@ -98,7 +100,22 @@ function freeze(value: unknown) {
     Object.values(value).forEach(freeze);
   }
 }
-const entrance = ["AddTextLetterByLetter", "AddTextWordByWord", "ShowIncreasingSubsets", "ShowSubmobjectsOneByOne","Add", "Create", "FadeIn", "GrowFromCenter", "GrowArrow", "GrowFromPoint", "GrowFromEdge", "SpinInFromNothing", "DrawBorderThenFill", "ShowPassingFlash"];
+const entrance = [
+  "AddTextLetterByLetter",
+  "AddTextWordByWord",
+  "ShowIncreasingSubsets",
+  "ShowSubmobjectsOneByOne",
+  "Add",
+  "Create",
+  "FadeIn",
+  "GrowFromCenter",
+  "GrowArrow",
+  "GrowFromPoint",
+  "GrowFromEdge",
+  "SpinInFromNothing",
+  "DrawBorderThenFill",
+  "ShowPassingFlash",
+];
 export const entrances = entrance;
 export function compileScene(input: unknown): CompiledScene {
   assertJSON(input);
@@ -139,13 +156,18 @@ export function compileScene(input: unknown): CompiledScene {
       }));
     throw new SceneValidationError(diagnostics);
   }
-  const document = expandLayouts(structuredClone(input) as unknown as SceneDocument),
+  const document = expandLayouts(
+      structuredClone(input) as unknown as SceneDocument,
+    ),
     objects = new Map<string, CompiledObject>(),
     spaces = new Map<string, SpaceDefinition>();
   const parameters = Object.keys(document.parameters ?? {});
-  const pointVariables = document.spaces.flatMap(space =>
-    space.objects.filter(o => o.type === "Point" || o.type === "PointOnCurve")
-      .flatMap(o => ["x", "y", "z"].map(axis => `${space.name}.${o.id}.${axis}`)),
+  const pointVariables = document.spaces.flatMap((space) =>
+    space.objects
+      .filter((o) => o.type === "Point" || o.type === "PointOnCurve")
+      .flatMap((o) =>
+        ["x", "y", "z"].map((axis) => `${space.name}.${o.id}.${axis}`),
+      ),
   );
   parameters.forEach((p) => {
     if (reservedNames.includes(p))
@@ -188,12 +210,20 @@ export function compileScene(input: unknown): CompiledScene {
           value <= 0
         )
           fail(path + "." + key, "Dimension must be positive");
+      if (
+        ["ImageMobject", "ImageSequence"].includes(o.type) &&
+        space.type !== "plane2d"
+      )
+        fail(path + ".type", "Raster images require plane2d");
       const expressions = new Map<string, MathExpression>(),
         deps: string[] = [];
-      const local =
-        ["ImplicitFunction", "ArrowVectorField", "StreamLines"].includes(o.type)
-          ? ["x", "y", "z"]
-          : o.type === "FunctionGraph"
+      const local = [
+        "ImplicitFunction",
+        "ArrowVectorField",
+        "StreamLines",
+      ].includes(o.type)
+        ? ["x", "y", "z"]
+        : o.type === "FunctionGraph"
           ? ["x"]
           : o.type === "PolarGraph"
             ? ["theta"]
@@ -232,9 +262,12 @@ export function compileScene(input: unknown): CompiledScene {
       };
       coordinate("position", o.position);
       for (const [key, value] of Object.entries(o)) {
-        if (["at", "from", "to", "vertex"].includes(key)) coordinate(key, value);
+        if (["at", "from", "to", "vertex"].includes(key))
+          coordinate(key, value);
         if (key === "points" || key === "seeds")
           (value as unknown[]).forEach((v, i) => coordinate(`${key}.${i}`, v));
+        if (key === "angles")
+          (value as unknown[]).forEach((v, i) => expression(`angles.${i}`, v));
         if (key === "expressions") coordinate(key, value, local);
         if (key === "expression") expression(key, value, local);
         if (
@@ -260,14 +293,21 @@ export function compileScene(input: unknown): CompiledScene {
           ].includes(key)
         )
           expression(key, value);
-        if (["domain", "uRange", "vRange", "xRange", "yRange", "zRange"].includes(key)) {
+        if (
+          ["domain", "uRange", "vRange", "xRange", "yRange", "zRange"].includes(
+            key,
+          )
+        ) {
           const r = value as number[];
           if (r[0] >= r[1]) fail(path + "." + key, "Range must be increasing");
         }
       }
       if (
         [
-          "Polyhedron", "ConvexHull3D", "Icosahedron", "Dodecahedron",
+          "Polyhedron",
+          "ConvexHull3D",
+          "Icosahedron",
+          "Dodecahedron",
           "Sphere",
           "Cube",
           "Cuboid",
@@ -281,7 +321,15 @@ export function compileScene(input: unknown): CompiledScene {
         fail(path + ".type", "This object requires space3d");
       if (
         [
-          "Elbow", "Annulus", "AnnularSector", "RegularPolygram", "ConvexHull",
+          "Elbow",
+          "Annulus",
+          "AnnularSector",
+          "RegularPolygram",
+          "Union",
+          "Difference",
+          "Intersection",
+          "Exclusion",
+          "ConvexHull",
           "FunctionGraph",
           "PolarGraph",
           "Circle",
@@ -292,35 +340,84 @@ export function compileScene(input: unknown): CompiledScene {
           "Star",
           "Rectangle",
           "Square",
-          "Triangle", "RoundedRectangle", "Angle", "RightAngle",
-          "ArcBetweenPoints", "CurvedArrow", "CurvedDoubleArrow",
-          "ImplicitFunction", "ArrowVectorField", "StreamLines",
+          "Triangle",
+          "RoundedRectangle",
+          "Angle",
+          "RightAngle",
+          "ArcBetweenPoints",
+          "CurvedArrow",
+          "CurvedDoubleArrow",
+          "ImplicitFunction",
+          "ArrowVectorField",
+          "StreamLines",
         ].includes(o.type) &&
         dim === 1
       )
         fail(path + ".type", "This object requires at least two dimensions");
       if (o.type === "ConvexHull" && dim !== 2)
-        fail(path + ".type", "ConvexHull requires a 2D space; use ConvexHull3D for a volume");
+        fail(
+          path + ".type",
+          "ConvexHull requires a 2D space; use ConvexHull3D for a volume",
+        );
       if (o.type === "RegularPolygram" && o.step >= o.sides)
         fail(path + ".step", "Step must be smaller than sides");
-      if (o.type === "Polyhedron" && o.faces.some(face => new Set(face).size !== face.length || face.some(i => i >= o.points.length)))
-        fail(path + ".faces", "Face indices must be distinct and refer to existing vertices");
+      if (
+        o.type === "Polyhedron" &&
+        o.faces.some(
+          (face) =>
+            new Set(face).size !== face.length ||
+            face.some((i) => i >= o.points.length),
+        )
+      )
+        fail(
+          path + ".faces",
+          "Face indices must be distinct and refer to existing vertices",
+        );
+      if (
+        o.type === "ArcPolygon" &&
+        o.angles &&
+        o.angles.length !== o.points.length
+      )
+        fail(path + ".angles", "ArcPolygon needs one sweep per edge");
+      if (o.type === "ArcPolygon" && dim === 1)
+        fail(path + ".type", "ArcPolygon needs at least two dimensions");
       if (o.type === "Bezier" && (o.points.length - 1) % 3 !== 0)
         fail(path + ".points", "Cubic Bezier requires 3n+1 control points");
       if (o.type === "ImplicitFunction" && dim !== 2)
         fail(path + ".type", "ImplicitFunction requires a 2D space");
       if (o.type === "ArrowVectorField") {
-        if (o.zRange && dim !== 3) fail(path + ".zRange", "zRange requires space3d");
-        const nx = Math.floor((o.xRange[1] - o.xRange[0]) / (o.spacing ?? 1)) + 1;
-        const ny = Math.floor((o.yRange[1] - o.yRange[0]) / (o.spacing ?? 1)) + 1;
-        const nz = o.zRange ? Math.floor((o.zRange[1] - o.zRange[0]) / (o.spacing ?? 1)) + 1 : 1;
-        if (nx * ny * nz > 4096) fail(path + ".spacing", "Vector field exceeds 4096 arrows");
+        if (o.zRange && dim !== 3)
+          fail(path + ".zRange", "zRange requires space3d");
+        const nx =
+          Math.floor((o.xRange[1] - o.xRange[0]) / (o.spacing ?? 1)) + 1;
+        const ny =
+          Math.floor((o.yRange[1] - o.yRange[0]) / (o.spacing ?? 1)) + 1;
+        const nz = o.zRange
+          ? Math.floor((o.zRange[1] - o.zRange[0]) / (o.spacing ?? 1)) + 1
+          : 1;
+        if (nx * ny * nz > 4096)
+          fail(path + ".spacing", "Vector field exceeds 4096 arrows");
       }
-      if (o.type === "StreamLines" && o.seeds.length * (o.steps ?? 256) > 100000)
+      if (
+        o.type === "StreamLines" &&
+        o.seeds.length * (o.steps ?? 256) > 100000
+      )
         fail(path + ".steps", "Streamlines exceed 100000 integration steps");
       if ("target" in o) deps.push(o.target);
-      if (o.type === "BackgroundRectangle") o.style={fillOpacity:1,...o.style};
-      if (["SurroundingRectangle","BackgroundRectangle","Brace"].includes(o.type) && dim!==2) fail(path+".type","Bounds helpers require a 2D space");
+      if ("operands" in o) {
+        deps.push(...o.operands);
+        if (space.type !== "plane2d")
+          fail(path + ".type", "Boolean paths require plane2d");
+      }
+      if (o.type === "BackgroundRectangle")
+        o.style = { fillOpacity: 1, ...o.style };
+      if (
+        ["SurroundingRectangle", "BackgroundRectangle", "Brace"].includes(
+          o.type,
+        ) &&
+        dim !== 2
+      )
+        fail(path + ".type", "Bounds helpers require a 2D space");
       if (o.type === "PointOnCurve" || o.type === "Tangent") deps.push(o.curve);
       if ("drag" in o && o.drag) {
         if (!parameters.includes(o.drag.parameter))
@@ -350,9 +447,13 @@ export function compileScene(input: unknown): CompiledScene {
         path,
         expressions,
         dependencies: deps,
-        pointReferences: [...new Set([...expressions.values()].flatMap(e =>
-          e.dependencies.filter(name => name.includes(".")),
-        ))],
+        pointReferences: [
+          ...new Set(
+            [...expressions.values()].flatMap((e) =>
+              e.dependencies.filter((name) => name.includes(".")),
+            ),
+          ),
+        ],
       });
     });
   });
@@ -372,14 +473,82 @@ export function compileScene(input: unknown): CompiledScene {
           "PictureInPicture uses pixel x/y, not world position",
         );
     }
+    if ("operands" in o.definition)
+      for (const ref of o.definition.operands) {
+        const target = resolve(ref, o.space.name, o.path + ".operands");
+        if (
+          ![
+            "Union",
+            "Difference",
+            "Intersection",
+            "Exclusion",
+            "Circle",
+            "Ellipse",
+            "Rectangle",
+            "Square",
+            "RoundedRectangle",
+            "Triangle",
+            "RegularPolygon",
+            "Star",
+            "Polygon",
+            "ArcPolygon",
+            "ConvexHull",
+            "Sector",
+            "Annulus",
+            "AnnularSector",
+            "SurroundingRectangle",
+            "BackgroundRectangle",
+          ].includes(target.definition.type)
+        )
+          fail(
+            o.path + ".operands",
+            "Boolean operands must be closed polygonal paths",
+          );
+      }
     if ("target" in o.definition) {
-      const target=resolve(o.definition.target,o.space.name,o.path+".target");
-      if (!pathObjects.includes(target.definition.type) && target.definition.type!=="Point")
-        fail(o.path+".target","Bounds helpers require a vector path or point target");
+      const target = resolve(
+        o.definition.target,
+        o.space.name,
+        o.path + ".target",
+      );
+      if (
+        o.definition.type === "AnimatedBoundary" &&
+        [
+          "Point",
+          "Union",
+          "Difference",
+          "Intersection",
+          "Exclusion",
+          "Annulus",
+          "RegularPolygram",
+          "ImplicitFunction",
+          "ArrowVectorField",
+          "StreamLines",
+        ].includes(target.definition.type)
+      )
+        fail(o.path + ".target", "AnimatedBoundary requires a continuous path");
+      if (
+        !pathObjects.includes(target.definition.type) &&
+        target.definition.type !== "Point"
+      )
+        fail(
+          o.path + ".target",
+          "Bounds helpers require a vector path or point target",
+        );
     }
     for (const dep of "curve" in o.definition ? [o.definition.curve] : [])
       if (
-        ["ImplicitFunction", "ArrowVectorField", "StreamLines"].includes(objects.get(dep)?.definition.type ?? "") ||
+        [
+          "ImplicitFunction",
+          "ArrowVectorField",
+          "StreamLines",
+          "Annulus",
+          "RegularPolygram",
+          "Union",
+          "Difference",
+          "Intersection",
+          "Exclusion",
+        ].includes(objects.get(dep)?.definition.type ?? "") ||
         !pathObjects.includes(
           resolve(dep, o.space.name, o.path + ".curve").definition.type,
         )
@@ -391,7 +560,10 @@ export function compileScene(input: unknown): CompiledScene {
     }
     if (o.definition.type === "TracedPath") {
       const source = objects.get(o.definition.point);
-      if (!source || !["Point", "PointOnCurve"].includes(source.definition.type))
+      if (
+        !source ||
+        !["Point", "PointOnCurve"].includes(source.definition.type)
+      )
         fail(o.path + ".point", "Expected a point reference");
       o.dependencies.push(o.definition.point);
     }
@@ -431,6 +603,8 @@ export function compileScene(input: unknown): CompiledScene {
     let cursor = 0,
       end = 0;
     events.forEach((a, i) => {
+      if (a.type === "LaggedStartMap")
+        return fail(path, "Unexpanded target-list animation");
       const ap = `${path}[${i}]`,
         start = base + cursor + (a.start ?? 0);
       let duration: number;
@@ -482,16 +656,42 @@ export function compileScene(input: unknown): CompiledScene {
   for (const [index, t] of tracks.entries()) {
     t.index = index;
     const a = t.event;
+    if (a.type === "CyclicReplace") {
+      const first =
+        objects.get(a.objects[0]) ??
+        fail(t.path + ".objects", "Unknown object");
+      for (const id of a.objects) {
+        const target = resolve(id, first.space.name, t.path + ".objects");
+        if (
+          target.parent !== first.parent ||
+          ["Group", "PictureInPicture"].includes(target.definition.type)
+        )
+          fail(
+            t.path + ".objects",
+            "CyclicReplace requires drawable siblings in one space",
+          );
+      }
+      t.writes = a.objects.map((id) => `${id}:position`);
+      continue;
+    }
     if (a.type === "AnimateParameter") {
       if (!parameters.includes(a.parameter))
         fail(t.path + ".parameter", "Unknown parameter");
       t.writes = [`parameter:${a.parameter}`];
       continue;
     }
-    if (a.type === "CameraZoom" || a.type === "CameraWindow" || a.type === "CameraMove" || a.type === "CameraOrbit") {
+    if (
+      a.type === "CameraZoom" ||
+      a.type === "CameraWindow" ||
+      a.type === "CameraMove" ||
+      a.type === "CameraOrbit"
+    ) {
       const space =
         spaces.get(a.space) ?? fail(t.path + ".space", "Unknown space");
-      if ((a.type === "CameraMove" || a.type === "CameraOrbit") && space.type !== "space3d")
+      if (
+        (a.type === "CameraMove" || a.type === "CameraOrbit") &&
+        space.type !== "space3d"
+      )
         fail(t.path + ".type", "3D camera movement requires space3d");
       if (a.type === "CameraOrbit" && a.axis && Math.hypot(...a.axis) === 0)
         fail(t.path + ".axis", "Orbit axis cannot be zero");
@@ -558,49 +758,212 @@ export function compileScene(input: unknown): CompiledScene {
       );
     const dim =
       o.space.type === "axis1d" ? 1 : o.space.type === "space3d" ? 3 : 2;
-    if (a.type === "Restore" && (a.at ?? 0) > t.start)
-      fail(t.path + ".at", "Restore snapshot must not be later than the event start");
-    if (["Homotopy", "ApplyPointwiseFunction", "PhaseFlow"].includes(a.type)) {
-      if (!["Point", ...pathObjects].includes(o.definition.type) || ["ImplicitFunction", "ArrowVectorField", "StreamLines", "Annulus", "RegularPolygram"].includes(o.definition.type))
-        fail(t.path + ".type", "Deformation requires a point or continuous vector path");
-      const a2 = a as Extract<ObjectEvent,{expressions: unknown}>;
-      if (a2.expressions.length !== dim) fail(t.path + ".expressions", `Expected ${dim} Cartesian expressions`);
-      t.expressions = a2.expressions.map((expression,i)=>compileMath(expression,[...parameters,"x","y","z","t","alpha"],`${t.path}.expressions[${i}]`));
+    if (["Flash", "FocusOn", "Circumscribe"].includes(a.type)) {
+      if (
+        o.space.type !== "plane2d" ||
+        ["Group", "PictureInPicture"].includes(o.definition.type)
+      )
+        fail(
+          t.path + ".type",
+          "Emphasis overlays require a drawable object in plane2d",
+        );
+      if (
+        a.type === "Circumscribe" &&
+        ["Text", "MathTex", "DecimalNumber"].includes(o.definition.type)
+      )
+        fail(
+          t.path + ".type",
+          "Circumscribe requires geometric bounds; measured text bounds are not available",
+        );
+      t.writes = [];
+      continue;
     }
-    if (["AddTextLetterByLetter", "RemoveTextLetterByLetter", "AddTextWordByWord"].includes(a.type) && o.definition.type !== "Text")
+    if (a.type === "Swap" || a.type === "FadeTransform") {
+      const target = resolve(a.to, o.space.name, t.path + ".to");
+      if (
+        target.id === o.id ||
+        target.parent !== o.parent ||
+        ["Group", "PictureInPicture"].includes(target.definition.type) ||
+        ["Group", "PictureInPicture"].includes(o.definition.type)
+      )
+        fail(
+          t.path + ".to",
+          "Swap and FadeTransform require distinct drawable siblings",
+        );
+    }
+    if (a.type === "Restore" && (a.at ?? 0) > t.start)
+      fail(
+        t.path + ".at",
+        "Restore snapshot must not be later than the event start",
+      );
+    if (
+      [
+        "Homotopy",
+        "ComplexHomotopy",
+        "ApplyPointwiseFunction",
+        "PhaseFlow",
+      ].includes(a.type)
+    ) {
+      if (
+        !["Point", ...pathObjects].includes(o.definition.type) ||
+        [
+          "ImplicitFunction",
+          "ArrowVectorField",
+          "StreamLines",
+          "Annulus",
+          "RegularPolygram",
+          "Union",
+          "Difference",
+          "Intersection",
+          "Exclusion",
+        ].includes(o.definition.type)
+      )
+        fail(
+          t.path + ".type",
+          "Deformation requires a point or continuous vector path",
+        );
+      if (a.type === "ComplexHomotopy") {
+        if (o.space.type !== "plane2d")
+          fail(t.path + ".type", "ComplexHomotopy requires plane2d");
+        t.complex = compileComplex(a.expression, t.path + ".expression", [
+          ...parameters,
+          "t",
+          "alpha",
+        ]);
+      } else {
+        const a2 = a as Extract<ObjectEvent, { expressions: unknown }>;
+        if (a2.expressions.length !== dim)
+          fail(
+            t.path + ".expressions",
+            `Expected ${dim} Cartesian expressions`,
+          );
+        t.expressions = a2.expressions.map((expression, i) =>
+          compileMath(
+            expression,
+            [...parameters, "x", "y", "z", "t", "alpha"],
+            `${t.path}.expressions[${i}]`,
+          ),
+        );
+      }
+    }
+    if (
+      [
+        "AddTextLetterByLetter",
+        "RemoveTextLetterByLetter",
+        "AddTextWordByWord",
+      ].includes(a.type) &&
+      o.definition.type !== "Text"
+    )
       fail(t.path + ".type", "Text reveal requires a plain Text object");
-    if (["ShowIncreasingSubsets", "ShowSubmobjectsOneByOne"].includes(a.type) && o.definition.type !== "Group")
+    if (
+      ["ShowIncreasingSubsets", "ShowSubmobjectsOneByOne"].includes(a.type) &&
+      o.definition.type !== "Group"
+    )
       fail(t.path + ".type", "Subset animation requires a Group");
-    if (a.type === "ApplyWave" && (!pathObjects.includes(o.definition.type) || ["ImplicitFunction", "ArrowVectorField", "StreamLines", "Annulus", "RegularPolygram"].includes(o.definition.type)))
+    if (
+      a.type === "ApplyWave" &&
+      (!pathObjects.includes(o.definition.type) ||
+        [
+          "ImplicitFunction",
+          "ArrowVectorField",
+          "StreamLines",
+          "Annulus",
+          "RegularPolygram",
+          "Union",
+          "Difference",
+          "Intersection",
+          "Exclusion",
+        ].includes(o.definition.type))
+    )
       fail(t.path + ".type", "ApplyWave requires a continuous vector path");
-    if (a.type === "ApplyWave" && a.direction && (Math.hypot(...a.direction) === 0 || a.direction.slice(dim).some(v=>v!==0)))
-      fail(t.path + ".direction", "Wave direction must be nonzero and within the space dimension");
-    if (a.type === "GrowArrow" && !["Arrow", "DoubleArrow", "CurvedArrow", "CurvedDoubleArrow"].includes(o.definition.type))
+    if (
+      a.type === "ApplyWave" &&
+      a.direction &&
+      (Math.hypot(...a.direction) === 0 ||
+        a.direction.slice(dim).some((v) => v !== 0))
+    )
+      fail(
+        t.path + ".direction",
+        "Wave direction must be nonzero and within the space dimension",
+      );
+    if (
+      a.type === "GrowArrow" &&
+      !["Arrow", "DoubleArrow", "CurvedArrow", "CurvedDoubleArrow"].includes(
+        o.definition.type,
+      )
+    )
       fail(t.path + ".type", "GrowArrow requires an arrow object");
-    if (["GrowFromPoint", "GrowFromEdge", "SpinInFromNothing"].includes(a.type) && o.definition.type === "Group")
-      fail(t.path + ".type", "This entrance requires drawable geometry; target individual group children");
-    if (a.type === "GrowFromEdge" && ((dim < 3 && ["front", "back"].includes(a.edge)) || (dim === 1 && ["top", "bottom"].includes(a.edge))))
+    if (
+      ["GrowFromPoint", "GrowFromEdge", "SpinInFromNothing"].includes(a.type) &&
+      o.definition.type === "Group"
+    )
+      fail(
+        t.path + ".type",
+        "This entrance requires drawable geometry; target individual group children",
+      );
+    if (
+      a.type === "GrowFromEdge" &&
+      ((dim < 3 && ["front", "back"].includes(a.edge)) ||
+        (dim === 1 && ["top", "bottom"].includes(a.edge)))
+    )
       fail(t.path + ".edge", "Edge is outside the space dimension");
-    if (a.type === "GrowFromEdge" && ["Text", "MathTex", "DecimalNumber"].includes(o.definition.type))
+    if (
+      a.type === "GrowFromEdge" &&
+      ["Text", "MathTex", "DecimalNumber"].includes(o.definition.type)
+    )
       fail(t.path + ".type", "GrowFromEdge requires vector or mesh bounds");
     if (a.type === "GrowFromPoint") {
-      if (a.point.length !== dim || a.point.some(v => typeof v !== "number"))
+      if (a.point.length !== dim || a.point.some((v) => typeof v !== "number"))
         fail(t.path + ".point", `Expected ${dim} numeric native coordinates`);
     }
-    if (a.type === "ShowPassingFlash" && (!pathObjects.includes(o.definition.type) || ["ImplicitFunction", "ArrowVectorField", "StreamLines", "Annulus", "RegularPolygram"].includes(o.definition.type)))
-      fail(t.path + ".type", "ShowPassingFlash requires a continuous vector path");
-    if ((a.type === "Transform" || a.type === "ReplacementTransform") &&
-      ["ImplicitFunction", "ArrowVectorField", "StreamLines", "Annulus", "RegularPolygram"].includes(o.definition.type))
+    if (
+      a.type === "ShowPassingFlash" &&
+      (!pathObjects.includes(o.definition.type) ||
+        [
+          "ImplicitFunction",
+          "ArrowVectorField",
+          "StreamLines",
+          "Annulus",
+          "RegularPolygram",
+          "Union",
+          "Difference",
+          "Intersection",
+          "Exclusion",
+        ].includes(o.definition.type))
+    )
+      fail(
+        t.path + ".type",
+        "ShowPassingFlash requires a continuous vector path",
+      );
+    if (
+      (a.type === "Transform" ||
+        a.type === "ReplacementTransform" ||
+        a.type === "TransformFromCopy") &&
+      [
+        "ImplicitFunction",
+        "ArrowVectorField",
+        "StreamLines",
+        "Annulus",
+        "RegularPolygram",
+        "Union",
+        "Difference",
+        "Intersection",
+        "Exclusion",
+      ].includes(o.definition.type)
+    )
       fail(t.path + ".type", "Disconnected paths do not support morphing");
     if (
       (a.type === "Create" ||
         a.type === "DrawBorderThenFill" ||
         a.type === "Uncreate" ||
+        a.type === "TransformFromCopy" ||
         a.type === "Transform" ||
         a.type === "ReplacementTransform") &&
       !pathObjects.includes(o.definition.type) &&
       !(
-        (a.type === "Create" || a.type === "Uncreate" || a.type === "DrawBorderThenFill") &&
+        (a.type === "Create" ||
+          a.type === "Uncreate" ||
+          a.type === "DrawBorderThenFill") &&
         o.definition.type === "Group" &&
         descendants(o.id)
           .slice(1)
@@ -616,6 +979,7 @@ export function compileScene(input: unknown): CompiledScene {
         `${a.type} requires a vector path (glyph writing and surface morphing are unsupported)`,
       );
     if (
+      a.type === "TransformFromCopy" ||
       a.type === "Transform" ||
       a.type === "ReplacementTransform" ||
       a.type === "MoveAlongPath"
@@ -627,7 +991,19 @@ export function compileScene(input: unknown): CompiledScene {
       );
       if (!pathObjects.includes(target.definition.type))
         fail(t.path, "Expected a vector-path target");
-      if (["ImplicitFunction", "ArrowVectorField", "StreamLines", "Annulus", "RegularPolygram"].includes(target.definition.type))
+      if (
+        [
+          "ImplicitFunction",
+          "ArrowVectorField",
+          "StreamLines",
+          "Annulus",
+          "RegularPolygram",
+          "Union",
+          "Difference",
+          "Intersection",
+          "Exclusion",
+        ].includes(target.definition.type)
+      )
         fail(t.path, "Expected a continuous vector-path target");
       if (target.id === o.id) fail(t.path, "Object cannot target itself");
     }
@@ -653,6 +1029,8 @@ export function compileScene(input: unknown): CompiledScene {
         "FadeIn",
         "FadeOut",
         "Blink",
+        "Swap",
+        "FadeTransform",
         "MoveTo",
         "Shift",
         "Scale",
@@ -665,7 +1043,11 @@ export function compileScene(input: unknown): CompiledScene {
         "MathTex supports addition, fades, color, movement and scale only",
       );
     if (o.definition.type === "Text" || o.definition.type === "DecimalNumber") {
-      if (["ApplyMatrix", "Rotate", "Wiggle", "SpinInFromNothing"].includes(a.type))
+      if (
+        ["ApplyMatrix", "Rotate", "Wiggle", "SpinInFromNothing"].includes(
+          a.type,
+        )
+      )
         fail(
           t.path + ".type",
           "Text rotation and matrix deformation are not supported in Stage 1",
@@ -678,43 +1060,94 @@ export function compileScene(input: unknown): CompiledScene {
       (a.matrix.length !== dim || a.matrix.some((r) => r.length !== dim))
     )
       fail(t.path + ".matrix", `Expected ${dim}×${dim} matrix`);
+    if (a.type === "TransformFromCopy") {
+      t.writes = [
+        "visible",
+        "geometry",
+        "position",
+        "rotation",
+        "scale",
+        "matrix",
+        "color",
+        "opacity",
+        "reveal",
+      ].map((key) => `${a.to}:${key}`);
+      continue;
+    }
     const props =
-      a.type === "Restore" ? ["position","scale","rotation","matrix","opacity","reveal","visible","color","geometry"]
-      :      a.type === "Blink" ? ["opacity"]
-      : ["AddTextLetterByLetter", "RemoveTextLetterByLetter", "AddTextWordByWord"].includes(a.type) ? ["geometry", "visible", "reveal", "opacity"]
-      : ["ShowIncreasingSubsets", "ShowSubmobjectsOneByOne"].includes(a.type) ? ["visible"]
-      :      a.type === "SpinInFromNothing"
-        ? ["visible", "position", "scale", "rotation", "opacity", "reveal"]
-        : ["GrowArrow", "GrowFromPoint", "GrowFromEdge"].includes(a.type)
-          ? ["visible", "position", "scale", "opacity", "reveal"]
-          : a.type === "DrawBorderThenFill" || a.type === "ShowPassingFlash"
-            ? ["visible", "reveal", "opacity"]
-            : a.type === "Add"
-        ? ["visible", "opacity", "reveal"]
-        : a.type === "Create" || a.type === "Uncreate"
-          ? ["visible", "reveal", "opacity"]
-          : a.type === "FadeIn" || a.type === "FadeOut"
-            ? ["visible", "opacity", "reveal"]
-            : a.type === "GrowFromCenter"
-              ? ["visible", "scale", "opacity", "reveal"]
-              : a.type === "MoveTo" ||
-                  a.type === "Shift" ||
-                  a.type === "MoveAlongPath"
-                ? ["position"]
-                : a.type === "Rotate" || a.type === "Wiggle"
-                  ? ["rotation"]
-                  : a.type === "Scale"
-                    ? ["scale"]
-                    : a.type === "FadeToColor"
-                      ? ["color"]
-                      : a.type === "Indicate"
-                        ? ["color", "scale"]
-                        : a.type === "ApplyMatrix"
-                          ? ["matrix"]
-                          : ["geometry"];
+      a.type === "Swap"
+        ? ["position"]
+        : a.type === "FadeTransform"
+          ? ["visible", "opacity"]
+          : a.type === "Restore"
+            ? [
+                "position",
+                "scale",
+                "rotation",
+                "matrix",
+                "opacity",
+                "reveal",
+                "visible",
+                "color",
+                "geometry",
+              ]
+            : a.type === "Blink"
+              ? ["opacity"]
+              : [
+                    "AddTextLetterByLetter",
+                    "RemoveTextLetterByLetter",
+                    "AddTextWordByWord",
+                  ].includes(a.type)
+                ? ["geometry", "visible", "reveal", "opacity"]
+                : ["ShowIncreasingSubsets", "ShowSubmobjectsOneByOne"].includes(
+                      a.type,
+                    )
+                  ? ["visible"]
+                  : a.type === "SpinInFromNothing"
+                    ? [
+                        "visible",
+                        "position",
+                        "scale",
+                        "rotation",
+                        "opacity",
+                        "reveal",
+                      ]
+                    : ["GrowArrow", "GrowFromPoint", "GrowFromEdge"].includes(
+                          a.type,
+                        )
+                      ? ["visible", "position", "scale", "opacity", "reveal"]
+                      : a.type === "DrawBorderThenFill" ||
+                          a.type === "ShowPassingFlash"
+                        ? ["visible", "reveal", "opacity"]
+                        : a.type === "Add"
+                          ? ["visible", "opacity", "reveal"]
+                          : a.type === "Create" || a.type === "Uncreate"
+                            ? ["visible", "reveal", "opacity"]
+                            : a.type === "FadeIn" || a.type === "FadeOut"
+                              ? ["visible", "opacity", "reveal"]
+                              : a.type === "GrowFromCenter"
+                                ? ["visible", "scale", "opacity", "reveal"]
+                                : a.type === "MoveTo" ||
+                                    a.type === "Shift" ||
+                                    a.type === "MoveAlongPath"
+                                  ? ["position"]
+                                  : a.type === "Rotate" || a.type === "Wiggle"
+                                    ? ["rotation"]
+                                    : a.type === "Scale"
+                                      ? ["scale"]
+                                      : a.type === "FadeToColor"
+                                        ? ["color"]
+                                        : a.type === "Indicate"
+                                          ? ["color", "scale"]
+                                          : a.type === "ApplyMatrix"
+                                            ? ["matrix"]
+                                            : ["geometry"];
     t.writes = descendants(a.object).flatMap((id) =>
       props.map((p) => `${id}:${p}`),
     );
+    if (a.type === "Swap") t.writes.push(`${a.to}:position`);
+    if (a.type === "FadeTransform")
+      t.writes.push(`${a.to}:opacity`, `${a.to}:visible`);
     if (a.type === "ReplacementTransform")
       t.writes.push(
         `${a.object}:visible`,
@@ -782,11 +1215,37 @@ export function compileScene(input: unknown): CompiledScene {
     for (const track of tracks) {
       const e = track.event;
       if (
-        (e.type === "CameraZoom" || e.type === "CameraWindow" || e.type === "CameraMove" || e.type === "CameraOrbit") &&
+        (e.type === "CameraZoom" ||
+          e.type === "CameraWindow" ||
+          e.type === "CameraMove" ||
+          e.type === "CameraOrbit") &&
         e.space === space.name
       ) {
-        steps.push({ event: e, progress: 1 });
         try {
+          if (e.type === "CameraMove") {
+            const before = evaluateCamera(space, steps, 1000, 1000),
+              a = before.position.map((v, i) => v - before.center[i]);
+            const b = e.position.map(
+                (v, i) => v - (e.center ?? before.center)[i],
+              ),
+              d = b.map((v, i) => v - a[i]);
+            const length = d.reduce((sum, v) => sum + v * v, 0),
+              u = length
+                ? Math.max(
+                    0,
+                    Math.min(
+                      1,
+                      -a.reduce((sum, v, i) => sum + v * d[i], 0) / length,
+                    ),
+                  )
+                : 0;
+            if (Math.hypot(...a.map((v, i) => v + u * d[i])) < 1e-10)
+              fail(
+                track.path,
+                "Camera move crosses its look-at center; use CameraOrbit to travel around it",
+              );
+          }
+          steps.push({ event: e, progress: 1 });
           evaluateCamera(space, steps, 1000, 1000);
         } catch (error) {
           fail(

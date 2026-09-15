@@ -44,6 +44,7 @@ export function createThreeAdapter(
   controls.enableDamping = false;
   controls.zoomToCursor = true;
   let applyingCamera = false;
+  let nonInteractive = new Set<string>();
   const sync = () => {
     if (applyingCamera) return;
     state.position = camera.position.toArray() as Vec3;
@@ -219,6 +220,9 @@ export function createThreeAdapter(
       camera.updateProjectionMatrix();
     },
     draw(frame, hover) {
+      nonInteractive = new Set(
+        frame.objects.filter((o) => o.interactive === false).map((o) => o.id),
+      );
       if (frame === lastFrame && hover === lastHover) {
         camera.updateMatrixWorld();
         renderer.render(scene, camera);
@@ -342,9 +346,20 @@ export function createThreeAdapter(
         } else if (o.geometry.kind === "path") {
           const points = shownPoints(o);
           if (o.geometry.dash || o.geometry.breaks) {
-            const segments = retain(`${o.id}:dashes`, () => new THREE.LineSegments(
-              new THREE.BufferGeometry(), new THREE.LineBasicMaterial()));
-            positions(segments.geometry, strokePaths(o).flatMap(path => path.slice(1).flatMap((p, i) => [path[i], p])));
+            const segments = retain(
+              `${o.id}:dashes`,
+              () =>
+                new THREE.LineSegments(
+                  new THREE.BufferGeometry(),
+                  new THREE.LineBasicMaterial(),
+                ),
+            );
+            positions(
+              segments.geometry,
+              strokePaths(o).flatMap((path) =>
+                path.slice(1).flatMap((p, i) => [path[i], p]),
+              ),
+            );
             style(segments, color, o.opacity);
             segments.userData.id = o.id;
           } else makeLine(`${o.id}:path`, points, color, o.opacity, o.id);
@@ -363,31 +378,68 @@ export function createThreeAdapter(
             );
             if (positions(mesh.geometry, o.geometry.points)) {
               mesh.geometry.setIndex(
-                o.geometry.indices ?? (o.geometry.breaks ?? [0]).flatMap((start,i,starts) =>
-                  THREE.ShapeUtils.triangulateShape(
-                    o.geometry.points.slice(start, starts[i+1] ?? o.geometry.points.length).map(p=>new THREE.Vector2(p[0],p[1])), []
-                  ).flat().map(index=>index+start)),
+                o.geometry.indices ??
+                  (o.geometry.breaks ?? [0]).flatMap((start, i, starts) =>
+                    THREE.ShapeUtils.triangulateShape(
+                      o.geometry.points
+                        .slice(start, starts[i + 1] ?? o.geometry.points.length)
+                        .map((p) => new THREE.Vector2(p[0], p[1])),
+                      [],
+                    )
+                      .flat()
+                      .map((index) => index + start),
+                  ),
               );
             }
-            style(mesh, color, o.opacity * (o.style.fillOpacity ?? 0.15) * (o.fillReveal ?? o.reveal));
+            style(
+              mesh,
+              color,
+              o.opacity *
+                (o.style.fillOpacity ?? 0.15) *
+                (o.fillReveal ?? o.reveal),
+            );
             mesh.userData.id = o.id;
           }
           if (o.geometry.arrows) {
-            const heads = retain(`${o.id}:heads`, () => new THREE.LineSegments(
-              new THREE.BufferGeometry(), new THREE.LineBasicMaterial()));
+            const heads = retain(
+              `${o.id}:heads`,
+              () =>
+                new THREE.LineSegments(
+                  new THREE.BufferGeometry(),
+                  new THREE.LineBasicMaterial(),
+                ),
+            );
             const headPoints: Vec3[] = [];
             for (const [tip, adjacent] of arrowTips(o, points)) {
-              const direction = new THREE.Vector3(...tip).sub(new THREE.Vector3(...adjacent));
+              const direction = new THREE.Vector3(...tip).sub(
+                new THREE.Vector3(...adjacent),
+              );
               const length = Math.min(0.18, direction.length() / 3);
               direction.normalize();
               const side = new THREE.Vector3(-direction.y, direction.x, 0);
-              if (side.length() < 1e-8) side.set(1, 0, 0); else side.normalize();
-              const center = new THREE.Vector3(...tip).addScaledVector(direction, -length);
-              for (const sign of [-1, 1]) headPoints.push(tip, center.clone().addScaledVector(side, sign * length * 0.4).toArray() as Vec3);
+              if (side.length() < 1e-8) side.set(1, 0, 0);
+              else side.normalize();
+              const center = new THREE.Vector3(...tip).addScaledVector(
+                direction,
+                -length,
+              );
+              for (const sign of [-1, 1])
+                headPoints.push(
+                  tip,
+                  center
+                    .clone()
+                    .addScaledVector(side, sign * length * 0.4)
+                    .toArray() as Vec3,
+                );
             }
-            positions(heads.geometry, headPoints); style(heads, color, o.opacity); heads.userData.id = o.id;
+            positions(heads.geometry, headPoints);
+            style(heads, color, o.opacity);
+            heads.userData.id = o.id;
           }
-          for (const [index, [tip, adjacent]] of (o.geometry.arrows ? [] : arrowTips(o, points)).entries()) {
+          for (const [index, [tip, adjacent]] of (o.geometry.arrows
+            ? []
+            : arrowTips(o, points)
+          ).entries()) {
             const a = new THREE.Vector3(...adjacent),
               b = new THREE.Vector3(...tip),
               direction = b.clone().sub(a).normalize(),
@@ -405,7 +457,9 @@ export function createThreeAdapter(
               direction,
             );
             cone.scale.setScalar(o.arrowScale ?? 1);
-            cone.position.copy(b.addScaledVector(direction, -0.1 * (o.arrowScale ?? 1)));
+            cone.position.copy(
+              b.addScaledVector(direction, -0.1 * (o.arrowScale ?? 1)),
+            );
             cone.userData.id = o.id;
           }
         }
@@ -437,7 +491,10 @@ export function createThreeAdapter(
       return (
         raycaster
           .intersectObjects(objects.children, true)
-          .find((h) => h.object.userData.id)?.object.userData.id ?? null
+          .find(
+            (h) =>
+              h.object.userData.id && !nonInteractive.has(h.object.userData.id),
+          )?.object.userData.id ?? null
       );
     },
     navigate(value) {

@@ -1,3 +1,4 @@
+import { preloadImages } from "./images.ts";
 import { createFrameQueue } from "./frame-queue.ts";
 import { evaluateCamera } from "../document/camera.ts";
 import { initialCamera } from "./adapter.ts";
@@ -134,7 +135,7 @@ export async function createPlayer(
     const wanted = new Set<string>();
     for (const object of space.objects) {
       if (
-        object.geometry.kind !== "text" ||
+        (object.geometry.kind !== "text" && object.geometry.kind !== "image") ||
         !object.visible ||
         !object.geometry.points.length
       )
@@ -149,6 +150,31 @@ export async function createPlayer(
         label.style.cssText =
           "position:absolute;white-space:pre;pointer-events:auto;transform-origin:center;cursor:default";
         layer.labels.append(label);
+      }
+      if (object.geometry.kind === "image") {
+        const source = object.geometry.source!;
+        if (label.dataset.source !== source) {
+          label.replaceChildren();
+          const image = document.createElement("img");
+          image.src = source;
+          image.alt = object.caption ?? "";
+          image.draggable = false;
+          image.style.cssText =
+            "width:100%;height:100%;display:block;pointer-events:none";
+          label.append(image);
+          label.dataset.source = source;
+        }
+        const [a, b, , d] = object.geometry.points.map((p) =>
+          layer.adapter.project(p),
+        );
+        label.style.left = "0";
+        label.style.top = "0";
+        label.style.width = "1px";
+        label.style.height = "1px";
+        label.style.transformOrigin = "0 0";
+        label.style.transform = `matrix(${b[0] - a[0]},${b[1] - a[1]},${d[0] - a[0]},${d[1] - a[1]},${a[0]},${a[1]})`;
+        label.style.opacity = String(object.opacity);
+        continue;
       }
       const text = object.geometry.text ?? "";
       if (label.dataset.text !== text) {
@@ -207,11 +233,9 @@ export async function createPlayer(
         number,
         number,
       ],
-      position: current.position.map((v, i) => v + next.position[i] - before.position[i]) as [
-        number,
-        number,
-        number,
-      ],
+      position: current.position.map(
+        (v, i) => v + next.position[i] - before.position[i],
+      ) as [number, number, number],
       scale: current.scale * (next.scale / before.scale),
     });
     return next;
@@ -302,6 +326,7 @@ export async function createPlayer(
       next = compileScene(documentValue),
       prepared = new Map<string, Layer>();
     try {
+      await preloadImages(next.document);
       if (
         next.document.spaces.some((s) =>
           s.objects.some((o) => o.type === "MathTex"),
@@ -500,7 +525,14 @@ export async function createPlayer(
   };
   const dragUpdates = createFrameQueue<[number, number]>((position) => {
     if (!dragging || !dragLayer || disposed) return;
-    const value = parameterFromDrag(compiled, time, overrides, dragging, position, layers.get(dragLayer)!.adapter.project);
+    const value = parameterFromDrag(
+      compiled,
+      time,
+      overrides,
+      dragging,
+      position,
+      layers.get(dragLayer)!.adapter.project,
+    );
     if (value && overrides[value.parameter] !== value.value) {
       overrides[value.parameter] = value.value;
       draw();
@@ -533,7 +565,8 @@ export async function createPlayer(
   };
   const up = (e: PointerEvent) => {
     if (dragging) {
-      if (e.type === "pointercancel") dragUpdates.cancel(); else dragUpdates.flush();
+      if (e.type === "pointercancel") dragUpdates.cancel();
+      else dragUpdates.flush();
       dragging = null;
       root.style.cursor = "grab";
       layers.get(dragLayer!)!.adapter.navigate(true);
