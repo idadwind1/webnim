@@ -8,7 +8,7 @@ import { pathToFileURL } from "node:url";
 import { compileScene, evaluateDocument } from "../dist/document/index.js";
 
 test("3D camera redraws retain resources; animation and hover update in place", async () => {
-  const dir = await mkdtemp(join(tmpdir(), "axiom-cache-")),
+  const dir = await mkdtemp(join(tmpdir(), "webnim-cache-")),
     output = join(dir, "adapter.mjs");
   const three = JSON.stringify(import.meta.resolve("three"));
   await build({
@@ -25,7 +25,7 @@ test("3D camera redraws retain resources; animation and hover update in place", 
             namespace: "boundary",
           }));
           b.onLoad({ filter: /.*/, namespace: "boundary" }, () => ({
-            contents: `export * from ${three}; export class WebGLRenderer {domElement={addEventListener(){},removeEventListener(){},remove(){}};setPixelRatio(){}setSize(){}dispose(){}forceContextLoss(){}render(scene){globalThis.__axiomTestScene=scene;}}`,
+            contents: `export * from ${three}; export class WebGLRenderer {domElement={addEventListener(){},removeEventListener(){},remove(){}};setPixelRatio(){}setSize(){}dispose(){}forceContextLoss(){}render(scene){globalThis.__webnimTestScene=scene;}}`,
             loader: "js",
           }));
           b.onResolve({ filter: /^file:/ }, (args) => ({
@@ -73,7 +73,7 @@ test("3D camera redraws retain resources; animation and hover update in place", 
     adapter.draw(frame, null);
     const nodes = () => {
       const result = [];
-      globalThis.__axiomTestScene.traverse((o) => {
+      globalThis.__webnimTestScene.traverse((o) => {
         if (o.geometry) result.push(o);
       });
       return result;
@@ -409,7 +409,7 @@ test("3D camera redraws retain resources; animation and hover update in place", 
     adapter?.dispose();
     if (saved) Object.defineProperty(globalThis, "window", saved);
     else delete globalThis.window;
-    delete globalThis.__axiomTestScene;
+    delete globalThis.__webnimTestScene;
     await rm(dir, { recursive: true, force: true });
   }
 });

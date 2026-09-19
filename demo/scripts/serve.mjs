@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
-import { readFile, stat } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { resolve, extname } from "node:path";
-const root = resolve(".");
+const root = resolve("dist");
 createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(
@@ -9,7 +9,7 @@ createServer(async (req, res) => {
       ),
       file = resolve(
         root,
-        "." + (pathname === "/" ? "/tests/browser/index.html" : pathname),
+        "." + (pathname === "/" ? "/index.html" : pathname),
       );
     if (!file.startsWith(root + "/")) throw new Error("Invalid path");
     const data = await readFile(file);
@@ -31,5 +31,5 @@ createServer(async (req, res) => {
     res.end("Not found");
   }
 }).listen(1431, "127.0.0.1", () =>
-  console.log("Engine fixture harness: http://localhost:1431"),
+  console.log("Webnim demo: http://localhost:1431"),
 );

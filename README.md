@@ -1,4 +1,4 @@
-# Axiom Engine
+# Webnim Engine
 
 ## Declarative JSON scenes
 
@@ -17,9 +17,9 @@ npm install
 npm test
 npm pack
 # In another project, install the generated archive:
-npm install /path/to/axiom-math-engine-0.1.0.tgz
+npm install /path/to/webnim-math-engine-0.1.0.tgz
 # Or install this repository directory while developing:
-npm install /path/to/axiom-engine
+npm install /path/to/webnim-engine
 ```
 
 The archive contains compiled ESM, TypeScript declarations, and React adapter CSS. Rebuild after editing library source. This package does not import the example application or its lessons.
@@ -27,7 +27,7 @@ The archive contains compiled ESM, TypeScript declarations, and React adapter CS
 ## Framework-independent API
 
 ```ts
-import {Engine, SceneBuilder, Circle, Create, Shift} from '@axiom-math/engine';
+import {Engine, SceneBuilder, Circle, Create, Shift} from '@webnim-math/engine';
 
 const scene = new SceneBuilder()
   .add(Circle('circle', 1, {color: '#4aa3ff'}))
@@ -53,8 +53,8 @@ The host owns the canvas size, device pixel ratio, clock, camera, and event hand
 Install `react` and `katex` in the host app. React and KaTeX are optional peer dependencies; core consumers do not need them.
 
 ```tsx
-import {Stage} from '@axiom-math/engine/react';
-import '@axiom-math/engine/react/style.css';
+import {Stage} from '@webnim-math/engine/react';
+import '@webnim-math/engine/react/style.css';
 
 <div style={{height: 500}}>
   <Stage
@@ -81,4 +81,30 @@ The example expects host-owned `time`, `highlight`, and `setHighlight` state. Ch
 
 ## Exports and scope
 
-Root exports include `Engine`, `SceneBuilder`, factories, animation helpers, scene evaluation, renderer, themes and camera utilities. Module entry points such as `@axiom-math/engine/shell`, `/parser`, `/vector` and `/timeline` expose lower-level APIs. `executeCommand` interprets local mathematical commands. The host application owns demo selection.
+Root exports include `Engine`, `SceneBuilder`, factories, animation helpers, scene evaluation, renderer, themes and camera utilities. Module entry points such as `@webnim-math/engine/shell`, `/parser`, `/vector` and `/timeline` expose lower-level APIs. `executeCommand` interprets local mathematical commands. The host application owns demo selection.
+
+## Separate demo app and app integration
+
+The demo site lives in [`demo/`](demo/README.md) in this repository, with its own dependencies, build and server. It imports the public engine APIs and is excluded from the published engine package.
+
+From the repository root, run `npm install` once, then **`npm run demo`** to build the engine, install demo dependencies, build the demo and serve it at http://localhost:1431. Stop it with Ctrl+C. The `fixtures` directory contains reusable scene documents used by engine tests and the demo.
+
+For a new browser app, install this package and use its public entry points:
+
+```ts
+import { createPlayer } from '@webnim-math/engine/browser';
+import '@webnim-math/engine/browser/style.css';
+import type { SceneDocument } from '@webnim-math/engine/document';
+
+const scene: SceneDocument = {
+  version: 1,
+  spaces: [{ name: 'main', type: 'plane2d', objects: [
+    { id: 'point', type: 'Point', at: [0, 0] }
+  ] }]
+};
+const player = await createPlayer(container, { document: scene });
+// Give container a nonzero width and height. On app teardown:
+player.dispose();
+```
+
+Your app owns controls, routing and lesson content. The engine supplies rendering, interaction and deterministic scene evaluation. Headless consumers can import `@webnim-math/engine/document` without mounting a browser player.

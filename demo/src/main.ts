@@ -1,5 +1,5 @@
-import { createPlayer, type ScenePlayer, type PlayerEvent } from "../../src/player/index.ts";
-import { supportedObjects } from "../../src/document/index.ts";
+import { createPlayer, type ScenePlayer, type PlayerEvent } from "@webnim-math/engine/browser";
+import { supportedObjects } from "@webnim-math/engine/document";
 const $ = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const input = $<HTMLTextAreaElement>("input"),
@@ -226,7 +226,7 @@ $("tests").onclick = safely(async () => {
     "2D-to-3D fade with destination interaction",
   );
   const fadeLayers = [
-    ...container.querySelector(".axiom-document-player")!.children,
+    ...container.querySelector(".webnim-document-player")!.children,
   ] as HTMLElement[];
   const visibleLayers = fadeLayers.filter(
     (layer) => layer.style.display !== "none",
@@ -265,6 +265,7 @@ $("tests").onclick = safely(async () => {
   );
   const getContext = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function (
+    this: HTMLCanvasElement,
     type: string,
     ...args: unknown[]
   ) {
@@ -514,7 +515,7 @@ $("tests").onclick = safely(async () => {
     );
     const rect = pip("a").getBoundingClientRect(),
       parentRect = container
-        .querySelector(".axiom-document-player")!
+        .querySelector(".webnim-document-player")!
         .getBoundingClientRect();
     assert(
       rect.width === 200 &&

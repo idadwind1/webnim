@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 const root = resolve("."),
-  directory = await mkdtemp(join(tmpdir(), "axiom-consumer-"));
+  directory = await mkdtemp(join(tmpdir(), "webnim-consumer-"));
 const output = execFileSync(
   "npm",
   [
@@ -12,7 +12,7 @@ const output = execFileSync(
     directory,
     "--json",
     "--cache",
-    "/tmp/axiom-npm-cache",
+    "/tmp/webnim-npm-cache",
   ],
   { cwd: root, encoding: "utf8" },
 );
@@ -20,7 +20,7 @@ const packed = JSON.parse(output.slice(output.indexOf("[\n")))[0];
 await writeFile(
   join(directory, "package.json"),
   JSON.stringify({
-    name: "fresh-axiom-consumer",
+    name: "fresh-webnim-consumer",
     private: true,
     type: "module",
   }),
@@ -33,7 +33,7 @@ execFileSync(
     "--ignore-scripts",
     "--omit=optional",
     "--cache",
-    "/tmp/axiom-npm-cache",
+    "/tmp/webnim-npm-cache",
     join(directory, packed.filename),
   ],
   { cwd: directory, stdio: "inherit" },
@@ -43,16 +43,16 @@ await writeFile(
   `
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { compileScene, evaluateDocument } from '@axiom-math/engine/document';
-import { createPlayer } from '@axiom-math/engine/browser';
+import { compileScene, evaluateDocument } from '@webnim-math/engine/document';
+import { createPlayer } from '@webnim-math/engine/browser';
 import { readFile } from 'node:fs/promises';
 assert.equal(typeof window, 'undefined');
 assert.equal(typeof document, 'undefined');
 assert.throws(() => createRequire(import.meta.url).resolve('react'));
-const scene=JSON.parse(await readFile('./node_modules/@axiom-math/engine/fixtures/four-spaces.json','utf8'));
+const scene=JSON.parse(await readFile('./node_modules/@webnim-math/engine/fixtures/four-spaces.json','utf8'));
 assert.equal(evaluateDocument(compileScene(scene),7.5).activeSpace,'solid');
 assert.equal(typeof createPlayer,'function');
-const schema=JSON.parse(await readFile('./node_modules/@axiom-math/engine/dist/document/scene-v1.schema.json','utf8'));
+const schema=JSON.parse(await readFile('./node_modules/@webnim-math/engine/dist/document/scene-v1.schema.json','utf8'));
 assert.equal(schema.properties.version.const,1);
 console.log('PASS: packed consumer, JSON fixture, schema, no React/browser globals');
 `,
@@ -63,7 +63,7 @@ execFileSync(process.execPath, ["verify.mjs"], {
 });
 await writeFile(
   join(directory, "consumer.ts"),
-  `import { compileScene, evaluateDocument, type SceneDocument } from '@axiom-math/engine/document';\nimport { createPlayer } from '@axiom-math/engine/browser';\nimport '@axiom-math/engine/browser/style.css';\nconst doc: SceneDocument={version:1,spaces:[{name:'s',type:'plane2d',objects:[]}]};\nconsole.log(evaluateDocument(compileScene(doc),0));\nvoid createPlayer(document.body,{document:doc});\n`,
+  `import { compileScene, evaluateDocument, type SceneDocument } from '@webnim-math/engine/document';\nimport { createPlayer } from '@webnim-math/engine/browser';\nimport '@webnim-math/engine/browser/style.css';\nconst doc: SceneDocument={version:1,spaces:[{name:'s',type:'plane2d',objects:[]}]};\nconsole.log(evaluateDocument(compileScene(doc),0));\nvoid createPlayer(document.body,{document:doc});\n`,
 );
 execFileSync(
   process.execPath,

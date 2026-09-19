@@ -449,8 +449,8 @@ export const pathObjects = [
 ];
 export const sceneSchemaV1 = {
   $schema: "http://json-schema.org/draft-07/schema#",
-  $id: "https://axiom-math.dev/schema/scene-v1.json",
-  title: "Axiom declarative scene v1",
+  $id: "https://webnim-math.dev/schema/scene-v1.json",
+  title: "Webnim declarative scene v1",
   ...obj(
     {
       version: { const: 1 },

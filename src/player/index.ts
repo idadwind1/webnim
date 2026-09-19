@@ -56,12 +56,12 @@ export async function createPlayer(
   options: PlayerOptions,
 ): Promise<ScenePlayer> {
   const root = document.createElement("div");
-  root.className = "axiom-document-player";
+  root.className = "webnim-document-player";
   root.style.cssText =
     "position:relative;width:100%;height:100%;min-height:100px;overflow:hidden;touch-action:none";
   root.setAttribute("aria-label", "Interactive mathematical scene");
   const tooltip = document.createElement("div");
-  tooltip.className = "axiom-object-caption";
+  tooltip.className = "webnim-object-caption";
   tooltip.setAttribute("role", "tooltip");
   tooltip.style.cssText =
     "display:none;position:absolute;z-index:2147483647;pointer-events:none;box-sizing:border-box;max-width:min(320px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:hidden;padding:8px 10px;border:1px solid;border-radius:4px;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.4 system-ui,sans-serif";
@@ -367,7 +367,7 @@ export async function createPlayer(
             )
           )
             throw new Error(
-              "Required math fonts are unavailable. Import @axiom-math/engine/browser/style.css and serve its fonts.",
+              "Required math fonts are unavailable. Import @webnim-math/engine/browser/style.css and serve its fonts.",
             );
         } finally {
           probe.remove();

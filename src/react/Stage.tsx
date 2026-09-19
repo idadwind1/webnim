@@ -171,7 +171,7 @@ export function Stage(props: StageProps) {
       ),
     );
   return (
-    <div className="stage axiom-stage" ref={host} style={{"--axiom-background":theme.background,"--axiom-foreground":theme.foreground,"--axiom-border":theme.axes} as CSSProperties}>
+    <div className="stage webnim-stage" ref={host} style={{"--webnim-background":theme.background,"--webnim-foreground":theme.foreground,"--webnim-border":theme.axes} as CSSProperties}>
       <canvas
         ref={canvas}
         style={{ cursor }}

@@ -3,8 +3,8 @@
 The document API is independent of the legacy command shell, lessons and React. It compiles JSON directly into parsed expressions, a reference graph and absolute-time event tracks. `evaluateDocument` is a headless function. `createPlayer` is a separate browser adapter.
 
 ```ts
-import { compileScene, evaluateDocument } from "@axiom-math/engine/document";
-import type { SceneDocument } from "@axiom-math/engine/document";
+import { compileScene, evaluateDocument } from "@webnim-math/engine/document";
+import type { SceneDocument } from "@webnim-math/engine/document";
 
 const document: SceneDocument = {
   version: 1,
@@ -53,13 +53,13 @@ const compiled = compileScene(document);
 const frame = evaluateDocument(compiled, 3, { along: 0.7 });
 ```
 
-All top-level and nested fields are validated. `SceneValidationError.diagnostics` contains `{path, message}` records with JSON paths. The schema is exported as `sceneSchemaV1`, available as `@axiom-math/engine/scene-v1.schema.json`, and checked in at `src/document/scene-v1.schema.json`. Its structural rules are supplemented by semantic validation: dimensions, references, dependency cycles, expressions, event capabilities and conflicting tracks.
+All top-level and nested fields are validated. `SceneValidationError.diagnostics` contains `{path, message}` records with JSON paths. The schema is exported as `sceneSchemaV1`, available as `@webnim-math/engine/scene-v1.schema.json`, and checked in at `src/document/scene-v1.schema.json`. Its structural rules are supplemented by semantic validation: dimensions, references, dependency cycles, expressions, event capabilities and conflicting tracks.
 
 ## Browser player
 
 ```ts
-import { createPlayer } from "@axiom-math/engine/browser";
-import "@axiom-math/engine/browser/style.css"; // packaged KaTeX fonts and styles
+import { createPlayer } from "@webnim-math/engine/browser";
+import "@webnim-math/engine/browser/style.css"; // packaged KaTeX fonts and styles
 
 // Give the container an explicit height.
 const player = await createPlayer(container, {
@@ -294,7 +294,7 @@ This geometrically flattens z while keeping the orbit camera. A subsequent 3×3 
 
 `fixtures/four-spaces.json` covers all spaces, parameters, constrained point, tangent, hidden progress, and timed fades. `fixtures/plane-transformations.json` demonstrates shear followed by a complex map. These documents belong to the engine and do not depend on the application demo.
 
-Run `npm test` for headless and compatibility checks. Run `npm run build:fixtures`, then `node scripts/serve-fixtures.mjs` and visit `http://localhost:1431` for the engine's plain browser acceptance harness. Use “Run browser checks” for transactional loading, zoom anchoring, camera persistence, fades, resizing, overrides, WebGL failure and disposal checks; orbit and drag can also be exercised directly.
+Run `npm test` for headless and compatibility checks. The separate app in `demo/` provides the browser acceptance harness. From the engine repository root, run `npm run demo`, then visit `http://localhost:1431`. Use “Run browser checks” for transactional loading, zoom anchoring, camera persistence, fades, resizing, overrides, WebGL failure and disposal checks; orbit and drag can also be exercised directly.
 
 See [MANIM-COVERAGE.md](./MANIM-COVERAGE.md) for implemented features and later stages.
 
@@ -357,7 +357,7 @@ Hover/click callbacks include the qualified PiP object ID, e.g. `pictureInPictur
 
 ### Green’s theorem demo
 
-Run `npm run build:fixtures`, then `node scripts/serve-fixtures.mjs` from the engine folder. Open http://localhost:1431/#greens for the lesson, timeline, and live circulation/area values.
+Run `npm run demo` from the engine repository root. Open http://localhost:1431/#greens for the lesson, timeline, and live circulation/area values.
 
 ### All animations demo
 

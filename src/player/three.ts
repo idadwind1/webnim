@@ -85,7 +85,7 @@ export function createThreeAdapter(
         "#include <clipping_planes_fragment>\nif (distance(gl_PointCoord, vec2(0.5)) > 0.5) discard;",
       );
     };
-    material.customProgramCacheKey = () => "axiom-drag-handle-circle";
+    material.customProgramCacheKey = () => "webnim-drag-handle-circle";
     return material;
   };
   const releaseNode = (node: Drawable) => {

@@ -1,0 +1,17 @@
+{
+  "name": "webnim-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && node scripts/build.mjs",
+    "start": "node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "@webnim-math/engine": "file:.."
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "~5.8.3"
+  }
+}
