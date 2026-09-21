@@ -3,8 +3,8 @@
 The document API is independent of the legacy command shell, lessons and React. It compiles JSON directly into parsed expressions, a reference graph and absolute-time event tracks. `evaluateDocument` is a headless function. `createPlayer` is a separate browser adapter.
 
 ```ts
-import { compileScene, evaluateDocument } from "@webnim-math/engine/document";
-import type { SceneDocument } from "@webnim-math/engine/document";
+import { compileScene, evaluateDocument } from "webnim/document";
+import type { SceneDocument } from "webnim/document";
 
 const document: SceneDocument = {
   version: 1,
@@ -53,13 +53,13 @@ const compiled = compileScene(document);
 const frame = evaluateDocument(compiled, 3, { along: 0.7 });
 ```
 
-All top-level and nested fields are validated. `SceneValidationError.diagnostics` contains `{path, message}` records with JSON paths. The schema is exported as `sceneSchemaV1`, available as `@webnim-math/engine/scene-v1.schema.json`, and checked in at `src/document/scene-v1.schema.json`. Its structural rules are supplemented by semantic validation: dimensions, references, dependency cycles, expressions, event capabilities and conflicting tracks.
+All top-level and nested fields are validated. `SceneValidationError.diagnostics` contains `{path, message}` records with JSON paths. The schema is exported as `sceneSchemaV1`, available as `webnim/scene-v1.schema.json`, and checked in at `src/document/scene-v1.schema.json`. Its structural rules are supplemented by semantic validation: dimensions, references, dependency cycles, expressions, event capabilities and conflicting tracks.
 
 ## Browser player
 
 ```ts
-import { createPlayer } from "@webnim-math/engine/browser";
-import "@webnim-math/engine/browser/style.css"; // packaged KaTeX fonts and styles
+import { createPlayer } from "webnim/browser";
+import "webnim/browser/style.css"; // packaged KaTeX fonts and styles
 
 // Give the container an explicit height.
 const player = await createPlayer(container, {

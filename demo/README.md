@@ -1,6 +1,6 @@
 # Webnim demo
 
-A separate app inside the engine repository. It owns the page, chapter buttons, subtitles, timeline, browser checks and local server. It imports only the public `@webnim-math/engine` APIs. The engine's published package excludes this directory.
+A separate app inside the engine repository. It owns the page, chapter buttons, subtitles, timeline, browser checks and local server. It imports only the public `webnim` APIs. The engine's published package excludes this directory.
 
 ## Start from the repository root
 

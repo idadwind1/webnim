@@ -1,5 +1,11 @@
 # Webnim Engine
 
+```sh
+npm install webnim
+```
+
+Licensed under [MIT](LICENSE). The GitHub Packages mirror is `@idadwind1/webnim`.
+
 ## Declarative JSON scenes
 
 The engine now has a document API: `compileScene`, `evaluateDocument`, and the browser-only `createPlayer`. Define spaces, geometry, live parameters and event tracks in one JSON document. Includes all four space types, Canvas/Three.js interaction, matrix/complex whole-space transformations, and simultaneous picture-in-picture spaces.
@@ -17,7 +23,7 @@ npm install
 npm test
 npm pack
 # In another project, install the generated archive:
-npm install /path/to/webnim-math-engine-0.1.0.tgz
+npm install /path/to/webnim-0.1.0.tgz
 # Or install this repository directory while developing:
 npm install /path/to/webnim-engine
 ```
@@ -27,7 +33,7 @@ The archive contains compiled ESM, TypeScript declarations, and React adapter CS
 ## Framework-independent API
 
 ```ts
-import {Engine, SceneBuilder, Circle, Create, Shift} from '@webnim-math/engine';
+import {Engine, SceneBuilder, Circle, Create, Shift} from 'webnim';
 
 const scene = new SceneBuilder()
   .add(Circle('circle', 1, {color: '#4aa3ff'}))
@@ -50,11 +56,11 @@ The host owns the canvas size, device pixel ratio, clock, camera, and event hand
 
 ## Optional React view
 
-Install `react` and `katex` in the host app. React and KaTeX are optional peer dependencies; core consumers do not need them.
+Install React 19 in the host app to use this adapter. React is an optional peer dependency; KaTeX is included as an engine dependency.
 
 ```tsx
-import {Stage} from '@webnim-math/engine/react';
-import '@webnim-math/engine/react/style.css';
+import {Stage} from 'webnim/react';
+import 'webnim/react/style.css';
 
 <div style={{height: 500}}>
   <Stage
@@ -81,7 +87,7 @@ The example expects host-owned `time`, `highlight`, and `setHighlight` state. Ch
 
 ## Exports and scope
 
-Root exports include `Engine`, `SceneBuilder`, factories, animation helpers, scene evaluation, renderer, themes and camera utilities. Module entry points such as `@webnim-math/engine/shell`, `/parser`, `/vector` and `/timeline` expose lower-level APIs. `executeCommand` interprets local mathematical commands. The host application owns demo selection.
+Root exports include `Engine`, `SceneBuilder`, factories, animation helpers, scene evaluation, renderer, themes and camera utilities. Module entry points such as `webnim/shell`, `/parser`, `/vector` and `/timeline` expose lower-level APIs. `executeCommand` interprets local mathematical commands. The host application owns demo selection.
 
 ## Separate demo app and app integration
 
@@ -92,9 +98,9 @@ From the repository root, run `npm install` once, then **`npm run demo`** to bui
 For a new browser app, install this package and use its public entry points:
 
 ```ts
-import { createPlayer } from '@webnim-math/engine/browser';
-import '@webnim-math/engine/browser/style.css';
-import type { SceneDocument } from '@webnim-math/engine/document';
+import { createPlayer } from 'webnim/browser';
+import 'webnim/browser/style.css';
+import type { SceneDocument } from 'webnim/document';
 
 const scene: SceneDocument = {
   version: 1,
@@ -107,4 +113,8 @@ const player = await createPlayer(container, { document: scene });
 player.dispose();
 ```
 
-Your app owns controls, routing and lesson content. The engine supplies rendering, interaction and deterministic scene evaluation. Headless consumers can import `@webnim-math/engine/document` without mounting a browser player.
+Your app owns controls, routing and lesson content. The engine supplies rendering, interaction and deterministic scene evaluation. Headless consumers can import `webnim/document` without mounting a browser player.
+
+## Publishing
+
+See [Publishing Webnim](docs/PUBLISHING.md) for npm and GitHub Packages release commands, authentication and versioning.

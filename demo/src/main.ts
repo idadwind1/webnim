@@ -1,5 +1,5 @@
-import { createPlayer, type ScenePlayer, type PlayerEvent } from "@webnim-math/engine/browser";
-import { supportedObjects } from "@webnim-math/engine/document";
+import { createPlayer, type ScenePlayer, type PlayerEvent } from "webnim/browser";
+import { supportedObjects } from "webnim/document";
 const $ = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const input = $<HTMLTextAreaElement>("input"),

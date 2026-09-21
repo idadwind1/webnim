@@ -8,7 +8,7 @@
     "start": "node scripts/serve.mjs"
   },
   "dependencies": {
-    "@webnim-math/engine": "file:.."
+    "webnim": "file:.."
   },
   "devDependencies": {
     "esbuild": "^0.28.2",

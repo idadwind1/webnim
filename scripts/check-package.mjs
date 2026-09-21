@@ -43,16 +43,16 @@ await writeFile(
   `
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { compileScene, evaluateDocument } from '@webnim-math/engine/document';
-import { createPlayer } from '@webnim-math/engine/browser';
+import { compileScene, evaluateDocument } from 'webnim/document';
+import { createPlayer } from 'webnim/browser';
 import { readFile } from 'node:fs/promises';
 assert.equal(typeof window, 'undefined');
 assert.equal(typeof document, 'undefined');
 assert.throws(() => createRequire(import.meta.url).resolve('react'));
-const scene=JSON.parse(await readFile('./node_modules/@webnim-math/engine/fixtures/four-spaces.json','utf8'));
+const scene=JSON.parse(await readFile('./node_modules/webnim/fixtures/four-spaces.json','utf8'));
 assert.equal(evaluateDocument(compileScene(scene),7.5).activeSpace,'solid');
 assert.equal(typeof createPlayer,'function');
-const schema=JSON.parse(await readFile('./node_modules/@webnim-math/engine/dist/document/scene-v1.schema.json','utf8'));
+const schema=JSON.parse(await readFile('./node_modules/webnim/dist/document/scene-v1.schema.json','utf8'));
 assert.equal(schema.properties.version.const,1);
 console.log('PASS: packed consumer, JSON fixture, schema, no React/browser globals');
 `,
@@ -63,7 +63,7 @@ execFileSync(process.execPath, ["verify.mjs"], {
 });
 await writeFile(
   join(directory, "consumer.ts"),
-  `import { compileScene, evaluateDocument, type SceneDocument } from '@webnim-math/engine/document';\nimport { createPlayer } from '@webnim-math/engine/browser';\nimport '@webnim-math/engine/browser/style.css';\nconst doc: SceneDocument={version:1,spaces:[{name:'s',type:'plane2d',objects:[]}]};\nconsole.log(evaluateDocument(compileScene(doc),0));\nvoid createPlayer(document.body,{document:doc});\n`,
+  `import { compileScene, evaluateDocument, type SceneDocument } from 'webnim/document';\nimport { createPlayer } from 'webnim/browser';\nimport 'webnim/browser/style.css';\nconst doc: SceneDocument={version:1,spaces:[{name:'s',type:'plane2d',objects:[]}]};\nconsole.log(evaluateDocument(compileScene(doc),0));\nvoid createPlayer(document.body,{document:doc});\n`,
 );
 execFileSync(
   process.execPath,

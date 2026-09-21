@@ -367,7 +367,7 @@ export async function createPlayer(
             )
           )
             throw new Error(
-              "Required math fonts are unavailable. Import @webnim-math/engine/browser/style.css and serve its fonts.",
+              "Required math fonts are unavailable. Import webnim/browser/style.css and serve its fonts.",
             );
         } finally {
           probe.remove();
