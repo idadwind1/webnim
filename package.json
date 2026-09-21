@@ -36,7 +36,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && node scripts/copy-assets.mjs",
-    "test": "npm run build && node --test --test-isolation=none tests/*.test.mjs",
+    "test": "npm run build && node --test --test-concurrency=1 tests/*.test.mjs",
     "prepack": "npm run build",
     "test:package": "node scripts/check-package.mjs",
     "demo": "npm run build && npm --prefix demo install --ignore-scripts && npm --prefix demo run build && npm --prefix demo start",
