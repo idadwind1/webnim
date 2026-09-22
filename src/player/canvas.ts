@@ -323,6 +323,8 @@ export function createCanvasAdapter(
         if (
           !object.visible ||
           object.opacity <= 0 ||
+          // Text is painted and picked by the DOM label overlay, not its anchor.
+          object.geometry.kind === "text" ||
           object.geometry.kind === "group"
         )
           continue;
@@ -355,14 +357,6 @@ export function createCanvasAdapter(
             points: [...points, points[0]],
             filled: true,
             radius: 0,
-          });
-          continue;
-        } else if (object.geometry.kind === "text") {
-          hits.push({
-            id: object.id,
-            points,
-            filled: false,
-            radius: Math.max(12, (object.geometry.text?.length ?? 1) * 6),
           });
           continue;
         } else {

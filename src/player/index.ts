@@ -1,5 +1,6 @@
 import { preloadImages } from "./images.ts";
 import { createFrameQueue } from "./frame-queue.ts";
+import { pickLabel } from "./label-hit.ts";
 import { evaluateCamera } from "../document/camera.ts";
 import { initialCamera } from "./adapter.ts";
 import { compileScene, type CompiledScene } from "../document/compiler.ts";
@@ -107,11 +108,15 @@ export async function createPlayer(
       object.opacity <= 0 ||
       object.reveal <= 0 ||
       !object.caption?.trim() ||
-      (object.geometry.kind !== "text" &&
+      (pickLabel(
+        layer.labels,
+        root.getBoundingClientRect().left + hoverPosition[0],
+        root.getBoundingClientRect().top + hoverPosition[1],
+      ) ??
         layer.adapter.pick(
           hoverPosition[0] - (layer.pip?.x ?? 0),
           hoverPosition[1] - (layer.pip?.y ?? 0),
-        ) !== hover)
+        )) !== hover
     ) {
       tooltip.style.display = "none";
       return;
@@ -137,6 +142,8 @@ export async function createPlayer(
       if (
         (object.geometry.kind !== "text" && object.geometry.kind !== "image") ||
         !object.visible ||
+        object.opacity <= 0 ||
+        object.reveal <= 0 ||
         !object.geometry.points.length
       )
         continue;
@@ -148,10 +155,11 @@ export async function createPlayer(
         label = document.createElement("div");
         label.dataset.object = object.id;
         label.style.cssText =
-          "position:absolute;white-space:pre;pointer-events:auto;transform-origin:center;cursor:default";
+          "position:absolute;white-space:pre;pointer-events:none;transform-origin:center;cursor:default";
         layer.labels.append(label);
       }
       if (object.geometry.kind === "image") {
+        label.style.pointerEvents = "auto";
         const source = object.geometry.source!;
         if (label.dataset.source !== source) {
           label.replaceChildren();
@@ -498,12 +506,10 @@ export async function createPlayer(
     return [p[0] - (pip?.x ?? 0), p[1] - (pip?.y ?? 0)] as [number, number];
   };
   const pick = (e: PointerEvent) => {
-    const label = (e.target as HTMLElement).closest(
-      "[data-object]",
-    ) as HTMLElement | null;
+    const layer = layers.get(viewAt(e))!;
     return (
-      label?.dataset.object ??
-      layers.get(viewAt(e))!.adapter.pick(...localPointer(e, viewAt(e)))
+      pickLabel(layer.labels, e.clientX, e.clientY) ??
+      layer.adapter.pick(...localPointer(e, viewAt(e)))
     );
   };
   const down = (e: PointerEvent) => {

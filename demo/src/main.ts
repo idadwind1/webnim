@@ -1,5 +1,6 @@
 import { createPlayer, type ScenePlayer, type PlayerEvent } from "webnim/browser";
 import { supportedObjects } from "webnim/document";
+import { checkLabelHits } from "./label-hit-checks";
 const $ = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const input = $<HTMLTextAreaElement>("input"),
@@ -149,6 +150,7 @@ $("tests").onclick = safely(async () => {
     passed.push(message);
     status.textContent = passed.join("\n");
   };
+  await checkLabelHits(assert);
   await player.load(fixtures[0]);
   player.pause();
   assert(player.getFrame().activeSpace === "line", "first space is default");

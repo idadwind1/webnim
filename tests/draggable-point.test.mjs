@@ -71,6 +71,30 @@ test("draggable points render and pick above later overlapping geometry", () => 
       "s.handle",
       "halo has a generous grab target",
     );
+    const labels = compileScene({
+      version: 1,
+      spaces: [
+        {
+          name: "s",
+          type: "plane2d",
+          objects: [
+            { id: "point", type: "Point", at: [1, 0] },
+            { id: "label", type: "Text", text: "A long label above the scene" },
+          ],
+        },
+      ],
+    });
+    adapter.draw(evaluateDocument(labels, 0).spaces[0], null);
+    assert.equal(
+      adapter.pick(460, 300),
+      "s.point",
+      "DOM text must not add a large circular Canvas hit area",
+    );
+    assert.equal(
+      adapter.pick(400, 320),
+      null,
+      "empty space near a text anchor is not selectable",
+    );
     adapter.dispose();
   } finally {
     for (const [k, v] of saved) {
