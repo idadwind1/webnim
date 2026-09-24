@@ -146,6 +146,10 @@ export function createCanvasAdapter(
   element.addEventListener("pointercancel", up);
   element.addEventListener("wheel", wheel, { passive: false });
   return {
+    cancelZoom: stopZoom,
+    zoomBy(delta) {
+      return zoomCamera(camera, delta, 0, 0, width, height);
+    },
     setCamera(value) {
       Object.assign(camera, structuredClone(value));
     },

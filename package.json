@@ -1,6 +1,6 @@
 {
   "name": "webnim",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Interactive mathematical scenes for the web: declarative JSON, 2D and 3D rendering, draggable geometry and deterministic animations.",
   "type": "module",
   "files": [

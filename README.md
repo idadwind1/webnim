@@ -1,5 +1,7 @@
 # Webnim Engine
 
+[![npm version](https://img.shields.io/npm/v/webnim.svg)](https://www.npmjs.com/package/webnim)
+
 ```sh
 npm install webnim
 ```
@@ -10,9 +12,27 @@ Licensed under [MIT](LICENSE). The GitHub Packages mirror is `@idadwind1/webnim`
 
 The engine now has a document API: `compileScene`, `evaluateDocument`, and the browser-only `createPlayer`. Define spaces, geometry, live parameters and event tracks in one JSON document. Includes all four space types, Canvas/Three.js interaction, matrix/complex whole-space transformations, and simultaneous picture-in-picture spaces.
 
-See [the document API guide](docs/DECLARATIVE-SCENES.md), [Manim coverage](docs/MANIM-COVERAGE.md), and the engine-owned [fixtures](fixtures/). Existing authoring, shell and React APIs below remain compatible.
+See [the document API guide](https://github.com/idadwind1/webnim/wiki/DECLARATIVE-SCENES), [Manim coverage](https://github.com/idadwind1/webnim/wiki/Features-and-Limitations), and the engine-owned [fixtures](fixtures/). Existing authoring, shell and React APIs below remain compatible.
 
 A TypeScript library for interactive 2D mathematical scenes. It includes scene factories, deterministic animation tracks, expression evaluation, Canvas rendering, hit testing, and camera utilities. An optional React adapter supplies pan/zoom, object hover and KaTeX labels.
+
+## Smooth camera zoom
+
+With a player returned by `createPlayer`, zoom the active view around its camera center:
+
+```ts
+player.zoomCamera(1.25, { durationMs: 200 }); // zoom in
+player.zoomCamera(0.8, { durationMs: 200 });  // zoom out
+player.zoomCamera(2, { space: 'solid', durationMs: 0 }); // immediate
+player.setCameraZoom(120, { durationMs: 200 }); // absolute camera scale
+player.setCameraZoom(60, { space: 'solid', durationMs: 200 });
+```
+
+`setCameraZoom` sets the same absolute scale returned by `getCamera().scale` (initial default: 60), rather than multiplying it. Its finite, positive target replaces any pending zoom destination without jumping. Both methods support `axis1d`, `plane2d`, `polar2d`, and `space3d` with perspective or orthographic projection, and accept the same options and cancellation behavior. The optional `space` names a main-view space; inset cameras remain independent.
+
+The factor must be finite and positive. Duration defaults to 200 milliseconds and must be finite and nonnegative. Repeated calls accumulate into a target zoom without changing the currently displayed scale abruptly. The animation uses eased logarithmic interpolation and works with Canvas views and both 3D projections. Zoom is an interactive camera offset and does not advance the scene clock; authored camera animation continues to compose with it.
+
+Wheel input, pointer presses (including object dragging), either camera-reset method, scene loading/replacement, and disposal cancel pending programmatic zoom at its current scale. Switching the requested space starts a new target. Calls during object dragging are ignored. Numerical viewport limits can stop zoom before the requested target.
 
 ## Build and install
 
@@ -23,7 +43,7 @@ npm install
 npm test
 npm pack
 # In another project, install the generated archive:
-npm install /path/to/webnim-0.1.0.tgz
+npm install /path/to/webnim-0.2.0.tgz
 # Or install this repository directory while developing:
 npm install /path/to/webnim-engine
 ```
@@ -117,4 +137,4 @@ Your app owns controls, routing and lesson content. The engine supplies renderin
 
 ## Publishing
 
-See [Publishing Webnim](docs/PUBLISHING.md) for npm and GitHub Packages release commands, authentication and versioning.
+See [Publishing Webnim](https://github.com/idadwind1/webnim/wiki/PUBLISHING) for npm and GitHub Packages release commands, authentication and versioning.

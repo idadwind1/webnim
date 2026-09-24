@@ -69,6 +69,30 @@ test("3D camera redraws retain resources; animation and hover update in place", 
       },
     );
     adapter.resize(800, 600);
+    for (const projection of ["perspective", "orthographic"]) {
+      const zoomAdapter = createThreeAdapter(
+        { name: "zoom", type: "space3d", camera: { projection }, objects: [] },
+        () => {},
+        () => {},
+      );
+      try {
+        zoomAdapter.resize(800, 600);
+        const before = structuredClone(zoomAdapter.camera);
+        zoomAdapter.setCamera(before);
+        const p = zoomAdapter.project([1, 0, 0]);
+        assert.equal(zoomAdapter.zoomBy(Math.log(2)), true);
+        const q = zoomAdapter.project([1, 0, 0]);
+        assert.ok(Math.abs(zoomAdapter.camera.scale - before.scale * 2) < 1e-9);
+        assert.ok(
+          Math.abs(q[0] - 400 - 2 * (p[0] - 400)) < 1e-7,
+          projection + " projected zoom",
+        );
+        assert.deepEqual(zoomAdapter.camera.center, before.center);
+        assert.deepEqual(zoomAdapter.camera.position, before.position);
+      } finally {
+        zoomAdapter.dispose();
+      }
+    }
     const frame = at(8);
     adapter.draw(frame, null);
     const nodes = () => {

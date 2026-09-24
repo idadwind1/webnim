@@ -191,6 +191,15 @@ export function createThreeAdapter(
   return {
     element,
     camera: state,
+    cancelZoom() {}, // OrbitControls applies wheel zoom synchronously (no damping).
+    zoomBy(delta) {
+      const scale = Math.exp(Math.log(state.scale) + delta);
+      const zoom = scale / baseScale;
+      if (!Number.isFinite(zoom) || zoom <= 0 || !Number.isFinite(1 / zoom))
+        return false;
+      this.setCamera({ ...state, scale });
+      return true;
+    },
     setCamera(value) {
       applyingCamera = true;
       try {

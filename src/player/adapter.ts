@@ -15,6 +15,8 @@ export interface RenderAdapter {
   element: HTMLCanvasElement;
   camera: ViewCamera;
   setCamera(camera: ViewCamera): void;
+  cancelZoom(): void;
+  zoomBy(logDelta: number): boolean;
   resize(width: number, height: number): void;
   draw(frame: SpaceFrame, hover: string | null): void;
   project(p: Vec3): Vec3;

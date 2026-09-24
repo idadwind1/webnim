@@ -1,6 +1,7 @@
 import { preloadImages } from "./images.ts";
 import { createFrameQueue } from "./frame-queue.ts";
 import { pickLabel } from "./label-hit.ts";
+import { createCameraZoom } from "./camera-zoom.ts";
 import { evaluateCamera } from "../document/camera.ts";
 import { initialCamera } from "./adapter.ts";
 import { compileScene, type CompiledScene } from "../document/compiler.ts";
@@ -29,6 +30,9 @@ export interface PlayerOptions {
   onEvent?: (event: PlayerEvent) => void;
 }
 export interface ScenePlayer {
+  zoomCamera(factor: number, options?: CameraZoomOptions): void;
+  /** Set an absolute getCamera().scale value, replacing any pending target. */
+  setCameraZoom(scale: number, options?: CameraZoomOptions): void;
   play(): void;
   pause(): void;
   seek(time: number): void;
@@ -43,6 +47,12 @@ export interface ScenePlayer {
   on(listener: (event: PlayerEvent) => void): () => void;
   dispose(): void;
   readonly playing: boolean;
+}
+export interface CameraZoomOptions {
+  /** Defaults to 200 ms. Zero applies the accumulated target immediately. */
+  durationMs?: number;
+  /** Defaults to the active main-view space. */
+  space?: string;
 }
 interface Layer {
   space: string;
@@ -95,6 +105,27 @@ export async function createPlayer(
     width: Math.max(1, container.clientWidth),
     height: Math.max(100, container.clientHeight),
   });
+  let zoomLayer: Layer | undefined;
+  const cameraZoom = createCameraZoom((delta) => {
+    if (disposed || !zoomLayer) return false;
+    try {
+      const accepted = zoomLayer.adapter.zoomBy(delta);
+      zoomLayer.adapter.draw(
+        frame.spaces.find((space) => space.name === zoomLayer!.space)!,
+        hoverLayer === zoomLayer.space ? hover : null,
+      );
+      labels(zoomLayer, zoomLayer.space);
+      updateCaption();
+      return accepted;
+    } catch (cause) {
+      error(cause instanceof Error ? cause : new Error(String(cause)));
+      return false;
+    }
+  });
+  const cancelCameraZoom = () => {
+    cameraZoom.cancel();
+    zoomLayer = undefined;
+  };
   const updateCaption = () => {
     const layer = layers.get(hoverLayer ?? frame.activeSpace);
     const space = frame.spaces.find((s) => s.name === layer?.space)!;
@@ -330,6 +361,7 @@ export async function createPlayer(
   };
   const load = async (documentValue: unknown) => {
     if (disposed) throw new Error("Player is disposed");
+    cancelCameraZoom();
     const generation = ++loadGeneration,
       next = compileScene(documentValue),
       prepared = new Map<string, Layer>();
@@ -473,6 +505,7 @@ export async function createPlayer(
       for (const [name, camera] of preparedCameras)
         authoredCameras.set(name, camera);
       for (const layer of layers.values()) layer.adapter.dispose();
+      cancelCameraZoom();
       dragUpdates.cancel();
       layers = prepared;
       compiled = next;
@@ -513,6 +546,7 @@ export async function createPlayer(
     );
   };
   const down = (e: PointerEvent) => {
+    cancelCameraZoom();
     downPosition = pointer(e);
     downLayer = viewAt(e);
     const id = pick(e),
@@ -600,13 +634,49 @@ export async function createPlayer(
     }
   };
   root.addEventListener("pointerdown", down, true);
+  root.addEventListener("wheel", cancelCameraZoom, {
+    capture: true,
+    passive: true,
+  });
   root.addEventListener("pointermove", move, true);
   root.addEventListener("pointerup", up, true);
   root.addEventListener("pointercancel", up, true);
   root.addEventListener("pointerleave", leave);
   const observer = new ResizeObserver(resize);
   observer.observe(container);
+  const queueCameraZoom = (
+    factor: number,
+    options: CameraZoomOptions,
+    absolute = false,
+  ) => {
+    if (disposed) throw new Error("Player is disposed");
+    if (!Number.isFinite(factor) || factor <= 0)
+      throw new Error(
+        `Zoom ${absolute ? "scale" : "factor"} must be finite and positive`,
+      );
+    const duration = options.durationMs ?? 200;
+    if (!Number.isFinite(duration) || duration < 0)
+      throw new Error("Zoom durationMs must be finite and nonnegative");
+    const name = options.space ?? frame.activeSpace;
+    const layer = layers.get(name);
+    if (!layer || layer.pip) throw new Error(`Unknown space ${name}`);
+    if (dragging) return;
+    if (zoomLayer !== layer) cancelCameraZoom();
+    zoomLayer = layer;
+    layer.adapter.cancelZoom();
+    cameraZoom.zoom(
+      factor,
+      duration,
+      absolute ? layer.adapter.camera.scale : undefined,
+    );
+  };
   const player: ScenePlayer = {
+    zoomCamera(factor, options = {}) {
+      queueCameraZoom(factor, options);
+    },
+    setCameraZoom(scale, options = {}) {
+      queueCameraZoom(scale, options, true);
+    },
     get playing() {
       return playing;
     },
@@ -641,6 +711,7 @@ export async function createPlayer(
     resetCamera(name = frame.activeSpace) {
       const layer = layers.get(name);
       if (!layer) throw new Error(`Unknown space ${name}`);
+      cancelCameraZoom();
       const definition = compiled.document.spaces.find((s) => s.name === name)!;
       layer.adapter.navigate(false);
       layer.adapter.setCamera(initialCamera(definition));
@@ -661,6 +732,7 @@ export async function createPlayer(
       const key = `pip:${id}`,
         layer = layers.get(key);
       if (!layer) throw new Error(`Unknown picture-in-picture ${id}`);
+      cancelCameraZoom();
       layer.adapter.navigate(false);
       layer.adapter.setCamera(
         initialCamera(
@@ -680,11 +752,13 @@ export async function createPlayer(
     dispose() {
       if (disposed) return;
       disposed = true;
+      cancelCameraZoom();
       dragUpdates.cancel();
       loadGeneration++;
       pause();
       observer.disconnect();
       root.removeEventListener("pointerdown", down, true);
+      root.removeEventListener("wheel", cancelCameraZoom, true);
       root.removeEventListener("pointermove", move, true);
       root.removeEventListener("pointerup", up, true);
       root.removeEventListener("pointercancel", up, true);

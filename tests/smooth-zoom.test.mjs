@@ -46,6 +46,11 @@ test("wheel zoom batches input, preserves its anchor, settles and cancels cleanl
       () => draws++,
     );
     adapter.resize(800, 600);
+    const initial = structuredClone(adapter.camera);
+    assert.equal(adapter.zoomBy(Math.log(1.25)), true);
+    assert.ok(Math.abs(adapter.camera.scale - 75) < 1e-10);
+    assert.deepEqual(adapter.camera.center, initial.center);
+    adapter.setCamera(initial);
     const wheel = (deltaY = -1) =>
       handlers.get("wheel")({
         deltaY,
