@@ -1,6 +1,6 @@
 # Webnim Engine
 
-[![npm version](https://img.shields.io/npm/v/webnim.svg)](https://www.npmjs.com/package/webnim)
+[![npm version](https://img.shields.io/npm/v/webnim/latest.svg)](https://www.npmjs.com/package/webnim)
 
 ```sh
 npm install webnim
@@ -139,7 +139,9 @@ Your app owns controls, routing and lesson content. The engine supplies renderin
 
 The **Publish npm Package** workflow (`.github/workflows/publish-npm.yml`) publishes on a GitHub release. First configure an npm trusted publisher for `webnim`: GitHub owner `idadwind1`, repository `webnim`, workflow `publish-npm.yml`, no environment, and allow direct `npm publish`. No npm token secret is required.
 
-For each release, update `package.json` and the lockfiles, commit and push, then publish a GitHub release tagged `v` plus the package version (for example `v0.2.0`). The workflow checks the tag, runs tests and the fresh-package consumer check, and publishes to npm. Prereleases use the `next` npm tag; stable releases use `latest`. The separate GitHub Packages workflow also runs on published releases.
+For each release, push your changes and publish a GitHub release with the desired version tag (for example `v0.3.0`). Both publishing workflows set `package.json` and the lockfiles from that tag before building and testing, so no manual version bump is needed. Prereleases use the `next` npm tag; stable npm releases use `latest`. The separate GitHub Packages workflow also runs on published releases.
+
+After npm publication succeeds, the workflow commits the version back to the default branch, updating `package.json`, `package-lock.json`, and the demo's engine dependency entry. An older release cannot roll back a newer version on that branch. The demo's own private version stays independent. The README badge reads npm's `latest` tag automatically; image caching can delay its refresh.
 
 To retry npm publication after fixing configuration, run **Publish npm Package** manually from Actions with the existing release tag. Published npm versions cannot be overwritten; use a new version for code changes.
 

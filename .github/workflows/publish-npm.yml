@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag matching the package version (for example v0.2.0)
+        description: Existing release tag to publish (for example v0.3.0)
         required: true
         type: string
 
@@ -34,19 +34,11 @@ jobs:
           node-version: '24'
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
-      - name: Check release version
+      - name: Set package version from release tag
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
           PRERELEASE: ${{ github.event.release.prerelease || false }}
-        run: |
-          node --input-type=module <<'JS'
-          import fs from 'node:fs';
-          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          if (pkg.name !== 'webnim' || process.env.RELEASE_TAG !== `v${pkg.version}`)
-            throw new Error('Release tag must match webnim package version');
-          const tag = process.env.PRERELEASE === 'true' || pkg.version.includes('-') ? 'next' : 'latest';
-          fs.appendFileSync(process.env.GITHUB_ENV, `NPM_DIST_TAG=${tag}\n`);
-          JS
+        run: node scripts/release-version.mjs
       - name: Use npm with trusted publishing support
         run: npm install --global npm@11
       - run: npm ci
@@ -54,3 +46,29 @@ jobs:
       - run: npm run test:package
       - name: Publish to npm using trusted publishing
         run: npm publish --registry=https://registry.npmjs.org --access=public --tag "$NPM_DIST_TAG"
+
+  sync-version:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Synchronize published version to the repository
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          TARGET_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          node scripts/release-version.mjs --only-if-newer
+          if ! git diff --quiet -- package.json package-lock.json demo/package-lock.json; then
+            git add package.json package-lock.json demo/package-lock.json
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m "Update package version to ${RELEASE_TAG#v}"
+            git push origin "HEAD:$TARGET_BRANCH"
+          fi
